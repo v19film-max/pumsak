@@ -1592,7 +1592,7 @@ let ob = null;
 function onboardHTML() {
   return `<div class="sh-t">PUMSAK 베타에 오신 걸 환영해요</div>
   <div class="sh-s">촬영 끝나고 페이 까먹지 말라고 만든 앱이에요. 세 가지만 알려주세요. 나중에 설정에서 바꿀 수 있어요.</div>
-  <div class="fld"><label for="ob-name">현장에서 불리는 이름</label><input class="inp" id="ob-name" value="${esc(ob.name)}" placeholder="예: 승민 (비우면 막내)"></div>
+  <div class="fld"><label for="ob-name">현장에서 불리는 이름</label><input class="inp" id="ob-name" value="${esc(ob.name)}" placeholder="예: 지훈 (비우면 막내)"></div>
   <div class="fld"><span class="lbl">어느 팀이세요?</span><div class="qchips" style="margin-top:0">${ROLES.map(r => `<button type="button" class="chip ${ob.role === r ? 'on' : ''}" data-act="obRole" data-v="${r}">${r}</button>`).join('')}</div></div>
   <div class="fld"><span class="lbl">보통 데이페이</span><div class="qchips" style="margin-top:0">${[250000, 300000, 350000, 400000, 450000, 500000, 600000].map(v => `<button type="button" class="chip ${ob.pay === v ? 'on' : ''}" data-act="obPay" data-v="${v}">${v / 10000}만</button>`).join('')}</div></div>
   <div class="fld"><span class="lbl">오버차지는 보통</span>${seg('ob:ot', [['pct', '데이페이의 10%'], ['fixed', '시간당 5만']], ob.ot)}</div>
@@ -1624,7 +1624,7 @@ function settingsHTML() {
   return `<div class="sh-t">기본 설정</div><div class="sh-s">새 촬영을 추가할 때 기본값으로 쓰여요. 촬영마다 따로 바꿀 수 있어요.</div>
   <div class="two">
     <div class="fld"><label for="s-role">내 포지션</label><input class="inp" id="s-role" data-sf="role" value="${esc(st.role)}"></div>
-    <div class="fld"><label for="s-call">현장에서 불리는 이름</label><input class="inp" id="s-call" data-sf="callName" value="${esc(st.callName || '')}" placeholder="예: 승민 (비우면 막내)"></div>
+    <div class="fld"><label for="s-call">현장에서 불리는 이름</label><input class="inp" id="s-call" data-sf="callName" value="${esc(st.callName || '')}" placeholder="예: 지훈 (비우면 막내)"></div>
   </div>
   <div class="note" style="margin:-8px 2px 16px">촬영운에 가끔 누가 이 이름으로 불러요. "${esc(callOf())} 35mm!"</div>
   <div class="fld"><span class="lbl">기본 근무 시간</span>${seg('s:baseHours', [[10, '10시간'], [12, '12시간']], st.baseHours)}</div>
@@ -1847,6 +1847,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232038').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232103').catch(() => {}));</script>
 </body>
 </html>
