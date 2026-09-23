@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="description" content="뮤비·광고 촬영 스태프를 위한 페이 지갑. 데이페이·오버차지·3.3%·사비·미정산 알림을 한 번에.">
 <meta property="og:title" content="품삯 — 촬영 스태프 페이 지갑">
 <meta property="og:description" content="받을 돈, 미정산 촬영, 오버차지 계산을 한눈에.">
@@ -65,8 +65,9 @@
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,button,a,input,select,label,.row,.wcard{touch-action:manipulation}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
-#scroller{height:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y}
+#scroller{height:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 body.sheet-open #scroller{overflow:hidden;touch-action:none}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
@@ -125,9 +126,11 @@ button{cursor:pointer}
 .wcard{--rx:0deg;--ry:0deg;--gx:50%;--gy:30%;--edge:0;--ang:45deg;--sy:0deg;--ss:1;--br:1;
   position:relative;flex:0 0 calc(100% - 26px);height:208px;border-radius:20px;padding:20px 20px 0;overflow:hidden;
   scroll-snap-align:center;scroll-snap-stop:always;
-  transform:rotateY(var(--sy)) scale(var(--ss)) rotateX(var(--rx)) rotateY(var(--ry));filter:brightness(var(--br));
-  transition:transform .18s var(--ease), filter .2s;user-select:none;-webkit-user-select:none;isolation:isolate}
-.wcard.tilting{transition:transform .08s linear, filter .2s}
+  transform:rotateY(var(--sy)) scale(var(--ss)) rotateX(var(--rx)) rotateY(var(--ry));will-change:transform;backface-visibility:hidden;
+  transition:transform .18s var(--ease);user-select:none;-webkit-user-select:none;isolation:isolate}
+.wcard.tilting{transition:transform .08s linear}
+.stack.scrolling .wcard{transition:none}
+.wcard .dim{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;background:#0B0C0E;opacity:0;will-change:opacity}
 .dots i{cursor:pointer}
 .w-amt{appearance:none;border:0;background:none;color:inherit;padding:2px 0;margin-left:auto;cursor:pointer;border-radius:10px;transition:transform .15s var(--ease), background .2s}
 .w-amt:active{transform:scale(.96);background:rgba(127,127,127,.12)}
@@ -153,6 +156,25 @@ button{cursor:pointer}
 .wrapfix .tx{flex:1;font-size:13.5px;font-weight:600}
 .wrapfix .tx small{display:block;font-weight:400;font-size:12px;color:var(--ink-3)}
 .wrapfix input{width:104px;flex:none}
+/* 준비물 체크리스트 */
+.ck{display:flex;flex-direction:column;gap:6px}
+.ck-i{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--surface-2);transition:opacity .2s}
+.ck-i.done{opacity:.55}
+.ck-i.done .ck-t{text-decoration:line-through}
+.ck-box{flex:none;width:24px;height:24px;border-radius:8px;border:0;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(180deg,var(--pl-top),var(--pl-bot));box-shadow:inset 0 2px 1px var(--pl-hi), inset 0 -2px 1px var(--pl-lo), 0 0 0 1px var(--line);transition:transform .15s var(--spring)}
+.ck-box:active{transform:scale(.85)}
+.ck-i.done .ck-box{background:var(--good);box-shadow:inset 0 2px 1px rgba(255,255,255,.3), inset 0 -2px 1px rgba(0,0,0,.2)}
+.ck-box svg{width:14px;height:14px;opacity:0}
+.ck-i.done .ck-box svg{opacity:1}
+.ck-t{flex:1;min-width:0;font-size:14.5px;font-weight:500}
+.ck-add{display:flex;gap:8px;margin-top:8px}
+.ck-add .inp{flex:1;padding:11px 12px;font-size:15px}
+.ck-prog{height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden;margin:2px 2px 10px}
+.ck-prog i{display:block;height:100%;background:var(--good);border-radius:3px;transition:width .35s var(--ease)}
+.memo-in{width:100%;min-height:84px;resize:vertical;line-height:1.5}
+.kitchip{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);font-weight:600}
+
 /* 월별 막대 */
 .mbars{display:flex;align-items:flex-end;gap:6px;height:130px;padding:6px 2px 0}
 .mbars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%}
@@ -576,7 +598,7 @@ function sampleJobs() {
     mk({ title: "해온 'Paper Plane'", company: '블랭크비주얼', date: addDays(T, -12), call: '08:00', wrap: '22:00', dayPay: 400000 }),
     mk({ title: "NOVA 'Static' 2회차", company: '모노필름', date: addDays(T, -1), call: '05:30', wrap: '22:00', dayPay: 450000, wrapFixed: false,
       expenses: [{ id: uid(), cat: '택시', amount: 27400, memo: '새벽 귀가', claim: true, receipt: true }] }),
-    mk({ title: '자동차 브랜드 필름', kind: 'CF', company: '스튜디오 하루', date: addDays(T, 1), call: '06:00', wrap: '20:00', dayPay: 550000, place: '파주 헤이리 로케', wrapFixed: false }),
+    mk({ title: '자동차 브랜드 필름', kind: 'CF', company: '스튜디오 하루', date: addDays(T, 1), call: '06:00', wrap: '20:00', dayPay: 550000, place: '파주 헤이리 로케', wrapFixed: false, memo: '차량 주행 씬 · 카메라카 있음. 주차는 헤이리 3주차장', checklist: [{ id: uid(), t: 'ARRI 알렉사 미니 LF', done: true }, { id: uid(), t: '시그니처 프라임 세트', done: true }, { id: uid(), t: '카메라카 리깅 암', done: false }, { id: uid(), t: 'V마운트 배터리 8개', done: false }, { id: uid(), t: '무선 영상 송출기', done: false }] }),
     mk({ title: '인디밴드 라이브 클립', company: '사운드웨이브', date: addDays(T, 9), call: '10:00', wrap: '20:00', dayPay: 250000, tax: '0', place: '홍대 클럽 FF', wrapFixed: false }),
     mk({ title: "RENA 'Mirror'", company: '블랭크비주얼', date: addDays(T, -95), call: '07:00', wrap: '22:30', dayPay: 400000, paidAt: addDays(T, -50) }),
   ];
@@ -640,7 +662,7 @@ let dbRef = null, cloud = false, saveTimer = 0, saving = Promise.resolve();
 function snapshot() { return { jobs: S.jobs, settings: S.settings, sample: S.sample, v: 1 }; }
 function hydrate(d) {
   if (!d || !Array.isArray(d.jobs)) return false;
-  S = { jobs: d.jobs.map(j => ({ expenses: [], place: '', ...j, wrapFixed: j.wrapFixed ?? (j.date < TODAY) })), settings: { ...DEFAULT_SETTINGS, ...(d.settings || {}) }, sample: !!d.sample };
+  S = { jobs: d.jobs.map(j => ({ expenses: [], place: '', checklist: [], ...j, wrapFixed: j.wrapFixed ?? (j.date < TODAY) })), settings: { ...DEFAULT_SETTINGS, ...(d.settings || {}) }, sample: !!d.sample };
   return true;
 }
 function loadLocal() { try { const raw = localStorage.getItem(LS); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
@@ -710,7 +732,7 @@ function walletHTML(t) {
   const cards = walletCards(t);
   return `<div class="stack" id="stack">${cards.map((c, i) => `
     <div class="wcard ${c.cls}" data-card="${i}">
-      <div class="grain"></div><div class="sheen"></div><div class="glow"></div>
+      <div class="grain"></div><div class="sheen"></div><div class="glow"></div><div class="dim"></div>
       <div class="in">
         <div class="w-top">
           <div><div class="wordmark">PUM<br>SAK<small>${i === 0 ? 'Wrap' : i === 1 ? 'Next' : 'Year'}</small></div><div class="chipslate"></div></div>
@@ -737,7 +759,7 @@ function nextHTML(j) {
       <div><div class="k">예상 엔드</div><div class="v">${j.wrap}<small>${h}h${m ? m + 'm' : ''}</small></div></div>
       <div><div class="k">예상 오버</div><div class="v ${c.otH ? 'warn' : ''}">${c.otH ? `+${c.otH}h` : '없음'}</div></div>
     </div>
-    <div class="n-b"><button class="pb sm" data-act="openJob" data-id="${j.id}">자세히</button><button class="pb sm" data-act="copyNotice" data-id="${j.id}">일정 공유 문구 복사</button></div>
+    <div class="n-b"><button class="pb sm" data-act="openJob" data-id="${j.id}">${kitCount(j).n ? `준비물 ${kitCount(j).d}/${kitCount(j).n}` : '준비물 · 메모'}</button><button class="pb sm" data-act="copyNotice" data-id="${j.id}">일정 공유 문구 복사</button></div>
   </div>`;
 }
 
@@ -934,20 +956,24 @@ function bindStack() {
   const stack = $('#stack'); if (!stack) return;
   const cards = [...stack.querySelectorAll('.wcard')];
   let raf = 0;
+  let idle = 0;
+  const dims = cards.map(c => c.querySelector('.dim'));
   const paintScroll = () => {
     raf = 0;
     const r = stack.getBoundingClientRect(), mid = r.left + r.width / 2;
     let best = 0, bestD = 1e9;
     cards.forEach((c, i) => {
       const b = c.getBoundingClientRect(), off = Math.max(-1, Math.min(1, (b.left + b.width / 2 - mid) / b.width));
-      if (!reduce) { c.style.setProperty('--sy', (off * -14).toFixed(2) + 'deg'); c.style.setProperty('--ss', (1 - Math.abs(off) * .07).toFixed(3)); }
-      c.style.setProperty('--br', (1 - Math.abs(off) * .25).toFixed(3));
-      c.style.setProperty('--gx', (50 - off * 60).toFixed(1) + '%');
+      if (!reduce) { c.style.setProperty('--sy', (off * -12).toFixed(1) + 'deg'); c.style.setProperty('--ss', (1 - Math.abs(off) * .06).toFixed(3)); }
+      dims[i].style.opacity = (Math.abs(off) * .32).toFixed(3);
       if (Math.abs(off) < bestD) { bestD = Math.abs(off); best = i; }
     });
     if (best !== activeCard) { activeCard = best; document.querySelectorAll('.dots i').forEach((d, i) => d.classList.toggle('on', i === best)); buzz(); countUp(); }
   };
-  stack.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paintScroll); }, { passive: true });
+  stack.addEventListener('scroll', () => {
+    stack.classList.add('scrolling'); clearTimeout(idle); idle = setTimeout(() => stack.classList.remove('scrolling'), 140);
+    if (!raf) raf = requestAnimationFrame(paintScroll);
+  }, { passive: true });
   if (activeCard) stack.scrollLeft = cards[activeCard].offsetLeft - 16;
   paintScroll();
   // 마우스 틸트 + 테두리 광택
@@ -1027,7 +1053,7 @@ function draftFrom(j) {
 function draftToJob(d) {
   const j = { id: d.id || uid(), title: d.title.trim() || '제목 없는 촬영', kind: d.kind, company: d.company.trim(), role: d.role.trim(), date: d.date, call: d.call, wrap: d.wrap, place: (d.place || '').trim(), wrapFixed: d.date < TODAY || !!d.wrapFixed,
     dayPay: num(d.dayPay), baseHours: num(d.baseHours) || 12, otRate: num(d.otRate), extra: num(d.extra), nego: d.negoOn ? num(d.nego) : null,
-    tax: d.tax, alertDays: d.alertDays === null || d.alertDays === '' ? null : +d.alertDays, snoozeUntil: d.snoozeUntil || null, paidAt: d.paidAt || null, memo: d.memo, expenses: d.expenses.filter(e => num(e.amount) > 0).map(e => ({ ...e, amount: num(e.amount) })) };
+    tax: d.tax, alertDays: d.alertDays === null || d.alertDays === '' ? null : +d.alertDays, snoozeUntil: d.snoozeUntil || null, checklist: d.checklist || [], paidAt: d.paidAt || null, memo: d.memo, expenses: d.expenses.filter(e => num(e.amount) > 0).map(e => ({ ...e, amount: num(e.amount) })) };
   return j;
 }
 function seg(field, opts, val) { return `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button type="button" class="${String(val) === String(v) ? 'on' : ''}" data-act="seg" data-f="${field}" data-v="${v}" role="radio" aria-checked="${String(val) === String(v)}">${l}</button>`).join('')}</div>`; }
@@ -1185,9 +1211,9 @@ function detailHTML(j) {
     <div class="track"><i class="base" style="width:${baseW / total * 100}%"></i><i class="ot" style="width:${otW / total * 100}%"></i></div>
     <div class="lab"><span class="num">콜 ${j.call}</span><span>${otW ? `기본 ${j.baseHours}h + 오버 ${Math.round(otW / 6) / 10}h` : `${Math.round(c.mins / 6) / 10}h · 오버 없음`}</span><span class="num">${j.date > TODAY || !j.wrapFixed ? '예상 엔드' : '랩'} ${j.wrap}</span></div>
   </div>
+  ${checklistHTML(j)}
   <div class="sec" style="margin-top:20px"><div class="sec-h" style="margin-bottom:8px"><h2 style="font-size:15px">사비 지출</h2><span style="font-size:12px;color:var(--ink-3)">청구 ${won(c.claim)} · 본인 부담 ${won(c.self)}</span></div>
     <div id="exDetail">${exEditorHTML(j.expenses || [], 'job')}</div></div>
-  ${j.memo ? `<div class="note" style="margin:14px 2px 0">📝 ${esc(j.memo)}</div>` : ''}
   <div class="act-grid">
     ${j.paidAt ? `<button class="pb full" data-act="unpay" data-id="${j.id}">입금 취소</button>`
       : s === 'upcoming' ? '' : `<button class="pb good full block" data-act="markPaid" data-id="${j.id}"><span class="spec"></span>입금 확인</button>`}
@@ -1198,6 +1224,7 @@ function detailHTML(j) {
   </div>
   <div id="copyFallback"></div>`;
 }
+function curJob() { return S.jobs.find(x => x.id === detailId); }
 function openDetail(id) { const j = S.jobs.find(x => x.id === id); if (!j) return; detailId = id; openSheet(detailHTML(j)); }
 function refreshDetail() { const j = S.jobs.find(x => x.id === detailId); if (j) { const sc = $('.sheet').scrollTop; $('#sheetBody').innerHTML = detailHTML(j); $('.sheet').scrollTop = sc; } }
 
@@ -1222,6 +1249,29 @@ function installHint() {
   try { if (localStorage.getItem('calltime.installHint') === 'off') return ''; } catch (e) {}
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   return `<div class="banner" style="margin-top:8px;background:var(--surface-2);color:var(--ink-2)"><span><b style="color:var(--ink)">앱처럼 쓰기</b><br>${ios ? '사파리 아래 공유 버튼 → <b>홈 화면에 추가</b>' : '브라우저 메뉴(⋮) → <b>홈 화면에 추가</b>'}</span><button class="pb sm" data-act="hideInstall">닫기</button></div>`;
+}
+
+/* ───────── 준비물 체크리스트 ───────── */
+const KITS = {
+  '촬영팀': ['카메라 바디', '렌즈 세트', 'V마운트 배터리', '메모리 카드', '카드 리더기', '온보드 모니터', '무선 영상 송출기', '팔로우 포커스', '매트박스·ND 필터', '삼각대·헤드'],
+  '연출팀': ['콘티·샷리스트 출력', '슬레이트', '무전기', '강풍기', '연무기', '연무액', '확성기', '감마 테이프', '생수·간식', '모니터 캡'],
+  '조명팀': ['조명 헤드', 'C-스탠드', '디퓨전·프레임', '전원·발전기', '멀티탭·연장선', '젤', '블랙랩', '샌드백'],
+  '공통': ['신분증', '보조배터리·충전기', '우비', '핫팩·선크림', '개인 텀블러'],
+};
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const kitCount = j => { const l = j.checklist || []; return { n: l.length, d: l.filter(x => x.done).length }; };
+function checklistHTML(j) {
+  const l = j.checklist || [], k = kitCount(j);
+  const my = S.settings.myKit || [];
+  return `<div class="sec" style="margin-top:20px"><div class="sec-h" style="margin-bottom:8px"><h2 style="font-size:15px">준비물 체크리스트</h2><span style="font-size:12px;color:var(--ink-3)">${k.n ? `${k.d}/${k.n} 챙김` : '챙길 장비·소품을 적어두세요'}</span></div>
+    ${k.n ? `<div class="ck-prog"><i style="width:${k.d / k.n * 100}%"></i></div>` : ''}
+    <div class="ck">${l.map((x, i) => `<div class="ck-i ${x.done ? 'done' : ''}"><button class="ck-box" data-act="ckTog" data-i="${i}" aria-label="${esc(x.t)} 챙김 표시">${CHECK_SVG}</button><span class="ck-t">${esc(x.t)}</span><button class="x-btn" data-act="ckDel" data-i="${i}" aria-label="삭제">${I.x}</button></div>`).join('')}</div>
+    <div class="ck-add"><input class="inp" id="ckNew" placeholder="예: 소니 FX6, 24-70 GM, 연무기" enterkeyhint="done" aria-label="준비물 추가"><button class="pb sm" data-act="ckAdd">추가</button></div>
+    <div class="qchips">${Object.keys(KITS).map(r => `<button type="button" class="chip" data-act="ckKit" data-k="${r}">+ ${r}</button>`).join('')}${my.length ? `<button type="button" class="chip" data-act="ckKit" data-k="__my">+ 내 리스트</button>` : ''}${l.length ? `<button type="button" class="chip" data-act="ckSaveMy">내 리스트로 저장</button>` : ''}</div>
+  </div>
+  <div class="sec" style="margin-top:20px"><div class="sec-h" style="margin-bottom:8px"><h2 style="font-size:15px">메모</h2><span id="memoSaved" style="font-size:12px;color:var(--ink-3)"></span></div>
+    <textarea class="inp memo-in" id="jobMemo" placeholder="예: B캠 추가, 2층 창문 쪽 역광 컷 / 주차는 뒷골목 공영주차장 / PD 김OO 010-…">${esc(j.memo || '')}</textarea>
+  </div>`;
 }
 
 /* ───────── 카드 › 상세 ───────── */
@@ -1306,6 +1356,11 @@ function settingsHTML() {
 /* ───────── actions ───────── */
 const A = {
   closeSheet: () => closeSheet(),
+  ckTog: (t) => { const j = curJob(); j.checklist[+t.dataset.i].done = !j.checklist[+t.dataset.i].done; buzz(); save(); refreshDetail(); render(); },
+  ckDel: (t) => { const j = curJob(); j.checklist.splice(+t.dataset.i, 1); save(); refreshDetail(); render(); },
+  ckAdd: () => { const inp = $('#ckNew'), v = inp.value.trim(); if (!v) { inp.focus(); return; } const j = curJob(); j.checklist = j.checklist || []; v.split(/[,\n]/).map(x => x.trim()).filter(Boolean).forEach(x => j.checklist.push({ id: uid(), t: x, done: false })); save(); refreshDetail(); render(); setTimeout(() => { const n = $('#ckNew'); n && n.focus(); }, 50); },
+  ckKit: (t) => { const j = curJob(); j.checklist = j.checklist || []; const have = new Set(j.checklist.map(x => x.t)); const src = t.dataset.k === '__my' ? (S.settings.myKit || []) : KITS[t.dataset.k]; let n = 0; src.forEach(x => { if (!have.has(x)) { j.checklist.push({ id: uid(), t: x, done: false }); n++; } }); save(); refreshDetail(); render(); toast(n ? `${n}개 추가했어요` : '이미 다 들어 있어요'); },
+  ckSaveMy: () => { const j = curJob(); S.settings.myKit = (j.checklist || []).map(x => x.t); save(); refreshDetail(); toast(`내 리스트 ${S.settings.myKit.length}개 저장 · 다른 촬영에서 불러올 수 있어요`); },
   cardDetail: (t) => { buzz(); openSheet(cardDetailHTML(+t.dataset.card)); },
   dot: (t) => goCard(+t.dataset.card),
   endAfter: (t) => { const c = minutesOf(draft.call); if (c == null) return; const m = (c + (+t.dataset.h) * 60) % 1440; const v = `${pad(Math.floor(m / 60))}:${pad(m % 60)}`; $('#f-wrap').value = v; setDraft('wrap', v); buzz(); },
@@ -1374,7 +1429,7 @@ const A = {
   },
   copyNotice: (t) => {
     const j = S.jobs.find(x => x.id === t.dataset.id), c = calc(j);
-    const text = [`[촬영 공지] ${fmtD(j.date)}`, `「${j.title}」${j.company ? ` · ${j.company}` : ''}`, `콜 ${j.call} → 예상 엔드 ${j.wrap} (${Math.floor(c.mins / 60)}시간${c.mins % 60 ? ` ${c.mins % 60}분` : ''})`, j.place ? `장소 ${j.place}` : '', j.memo ? `메모 ${j.memo}` : ''].filter(Boolean).join('\n');
+    const text = [`[촬영 공지] ${fmtD(j.date)}`, `「${j.title}」${j.company ? ` · ${j.company}` : ''}`, `콜 ${j.call} → 예상 엔드 ${j.wrap} (${Math.floor(c.mins / 60)}시간${c.mins % 60 ? ` ${c.mins % 60}분` : ''})`, j.place ? `장소 ${j.place}` : '', (j.checklist || []).length ? `준비물 ${j.checklist.map(x => x.t).join(', ')}` : '', j.memo ? `메모 ${j.memo}` : ''].filter(Boolean).join('\n');
     try { navigator.clipboard.writeText(text).then(() => toast('일정 문구를 복사했어요'), () => toast('복사가 막혀 있어요')); } catch (e) { toast('복사가 막혀 있어요'); }
   },
   copyReq: (t) => {
@@ -1406,6 +1461,13 @@ document.addEventListener('input', e => {
   if (el.dataset.f && draft) setDraft(el.dataset.f, el.hasAttribute('data-money') ? num(el.value) : el.value);
   if (el.dataset.sf) { const k = el.dataset.sf; S.settings[k] = (el.hasAttribute('data-money') || k === 'otPct') ? num(el.value) : el.value; if (k === 'otPct') document.querySelectorAll('[data-act=otPct]').forEach(c => c.classList.toggle('on', +c.dataset.v === num(el.value))); save(); }
 });
+let memoT = 0;
+document.addEventListener('input', e => {
+  if (e.target.id !== 'jobMemo') return;
+  clearTimeout(memoT); const v = e.target.value;
+  memoT = setTimeout(() => { const j = curJob(); if (!j) return; j.memo = v; save(); const m = $('#memoSaved'); if (m) m.textContent = '저장됨'; }, 500);
+});
+document.addEventListener('keydown', e => { if (e.target.id === 'ckNew' && e.key === 'Enter' && !e.isComposing) { e.preventDefault(); A.ckAdd(); } });
 document.addEventListener('change', e => {
   if (e.target.id !== 'importFile' || !e.target.files[0]) return;
   const fr = new FileReader();
@@ -1456,6 +1518,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231954').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232000').catch(() => {}));</script>
 </body>
 </html>
