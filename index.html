@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="description" content="촬영 끝나고 페이 까먹지 말라고 만든 앱. 오버차지, 3.3%, 사비까지 알아서 계산해줘요.">
-<meta property="og:title" content="품삯 — 촬영 스태프 페이 지갑">
+<meta property="og:title" content="PUMSAK — 촬영 스태프 페이 장부">
 <meta property="og:description" content="촬영 끝나고 페이 까먹지 말라고 만든 앱">
 <meta property="og:image" content="icons/og.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,10 +12,13 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="품삯">
+<meta name="apple-mobile-web-app-title" content="PUMSAK">
+<meta name="author" content="V19FILM">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
-<title>품삯</title>
+<title>PUMSAK</title>
+<meta name="author" content="V19FILM">
+<!-- PUMSAK · © 2026 V19FILM. All rights reserved. 기획·디자인·개발 V19FILM -->
 <meta name="theme-color" content="#EDEEF0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1035,17 +1038,7 @@ async function drawStory() {
   lines.forEach((l, i) => g.fillText(l, 70, top + i * lh));
   g.fillStyle = '#E1E3E6'; g.fillRect(70, ch - 220, cw - 140, 2);
   g.font = `500 38px ${KR}`; g.fillStyle = '#6B7280';
-  wrapText(g, f.sub, cw - 330).slice(0, 2).forEach((l, i) => g.fillText(l, 70, ch - 140 + i * 54));
-  // 카드 구석에서 빼꼼 나온 슬레이트 친구
-  g.save(); g.translate(cw - 190, ch - 150); g.rotate(.14);
-  rr(g, 0, 34, 150, 112, 16); g.fillStyle = '#1E2024'; g.fill();
-  g.save(); g.translate(0, 34); g.rotate(-.2); rr(g, 0, -30, 154, 30, 8); g.fillStyle = '#2B2D31'; g.fill(); g.clip();
-  g.fillStyle = '#E6E7EA'; for (let x = -10; x < 170; x += 36) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 14, -30); g.lineTo(x + 30, -30); g.lineTo(x + 16, 0); g.fill(); } g.restore();
-  g.fillStyle = '#fff'; [[50, 82], [100, 82]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); });
-  g.fillStyle = 'rgba(255,125,140,.75)'; [[34, 104], [116, 104]].forEach(([x, y]) => { g.beginPath(); g.ellipse(x, y, 12, 7, 0, 0, 7); g.fill(); });
-  g.strokeStyle = '#fff'; g.lineWidth = 4; g.lineCap = 'round'; g.beginPath(); g.arc(75, 102, 8, .2, Math.PI - .2); g.stroke();
-  g.fillStyle = '#7CC6FF'; g.beginPath(); g.moveTo(166, 40); g.quadraticCurveTo(180, 64, 166, 74); g.quadraticCurveTo(152, 64, 166, 40); g.fill();
-  g.restore();
+  wrapText(g, f.sub, cw - 140).slice(0, 2).forEach((l, i) => g.fillText(l, 70, ch - 140 + i * 54));
   // 개퍼 테이프 — 카드 위쪽을 붙잡고, 흰 매직으로 라벨
   g.save(); g.translate(cw - 250, 4); g.rotate(.07);
   const tw = 380, th = 96, tr = seeded('gaff-' + TODAY), zig = n => Array.from({ length: n + 1 }, (_, i) => [i / n, tr()]);
@@ -1066,13 +1059,14 @@ async function drawStory() {
   g.restore();
   // 하단
   g.fillStyle = '#E8312F'; g.beginPath(); g.arc(104, 1690, 13, 0, 7); g.fill();
-  g.font = `700 40px ${KR}`; g.fillStyle = '#E6E7EA'; g.fillText('품삯', 134, 1704);
+  g.font = `800 42px ${EN}`; g.fillStyle = '#E6E7EA'; g.fillText('PUMSAK', 134, 1705);
   g.font = `500 34px ${KR}`; g.fillStyle = '#8A8F97'; g.fillText('페이 까먹지 말라고 만든 앱', 90, 1770);
+  g.font = `600 26px ${EN}`; g.fillStyle = '#5A5F67'; g.textAlign = 'right'; g.fillText('made by V19FILM', W - 90, 1770); g.textAlign = 'left';
   return c;
 }
 async function shareStory() {
   toast('스토리 이미지를 만드는 중…');
-  const c = await drawStory(), name = `품삯_촬영운_${TODAY}.png`;
+  const c = await drawStory(), name = `PUMSAK_촬영운_${TODAY}.png`;
   const fs = plug('Filesystem'), sh = plug('Share');
   if (NATIVE && fs && sh) {
     try { const w = await fs.writeFile({ path: name, data: c.toDataURL('image/png').split(',')[1], directory: 'CACHE' }); await sh.share({ title: '오늘의 촬영운', files: [w.uri] }); }
@@ -1572,7 +1566,8 @@ function settingsHTML() {
     <div class="two"><button type="button" class="pb" data-act="exportData">백업 파일 저장</button><label class="pb" for="importFile" style="cursor:pointer">백업 불러오기</label></div>
     <input type="file" id="importFile" accept="application/json,.json" hidden></div>`}
   ${S.sample ? `<button class="pb block" style="margin-top:14px" data-act="clearSample">예시 데이터 지우고 시작하기</button>` : ''}
-  <div class="note" style="text-align:center;margin-top:18px">품삯 베타 · 원천징수 계산은 일반적인 기준을 적용한 참고용이에요. 실제 세액·신고는 국세청 또는 세무 전문가에게 확인하세요.</div>
+  <div class="note" style="text-align:center;margin-top:18px">PUMSAK 베타 · 원천징수 계산은 일반적인 기준을 적용한 참고용이에요. 실제 세액·신고는 국세청 또는 세무 전문가에게 확인하세요.</div>
+  <div class="note" style="text-align:center;margin-top:6px">© 2026 <b>V19FILM</b> · 기획·디자인·개발 V19FILM</div>
   <details class="note" style="margin-top:8px"><summary style="cursor:pointer;text-align:center">오픈소스 고지</summary>
     <p style="margin:8px 0 0">일부 인터랙션(카드 틸트·테두리 광택·버튼 반사광·단계 폼·점진 블러)은 React Bits(© David Haz)의 컴포넌트를 참고해 다시 구현했습니다. MIT License + Commons Clause — https://github.com/DavidHDev/react-bits</p></details>
   <div class="sh-actions"><button class="pb primary" data-act="closeSheet"><span class="spec"></span>완료</button></div>`;
@@ -1596,14 +1591,14 @@ const A = {
     const fs = plug('Filesystem'), sh = plug('Share');
     if (NATIVE && fs && sh) {
       try {
-        const name = `품삯_백업_${TODAY}.json`;
+        const name = `PUMSAK_백업_${TODAY}.json`;
         const w = await fs.writeFile({ path: name, data: JSON.stringify({ ...snapshot(), photos: await collectPhotos() }), directory: 'CACHE', encoding: 'utf8' });
-        await sh.share({ title: '품삯 백업', files: [w.uri] });
+        await sh.share({ title: 'PUMSAK 백업', files: [w.uri] });
       } catch (e) { if (!/cancel/i.test(String(e && e.message))) toast('백업 파일을 만들지 못했어요'); }
       return;
     }
     const blob = new Blob([JSON.stringify({ ...snapshot(), photos: await collectPhotos() })], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `품삯_백업_${TODAY}.json`;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `PUMSAK_백업_${TODAY}.json`;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('백업 파일을 저장했어요');
   },
   otPct: (t) => { S.settings.otPct = +t.dataset.v; save(); const i = $('#s-otpct'); if (i) i.value = t.dataset.v; t.parentElement.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === t)); },
@@ -1706,7 +1701,7 @@ document.addEventListener('change', e => {
   if (e.target.id === 'phIn') { onPhoto(e.target.files[0]); return; }
   if (e.target.id !== 'importFile' || !e.target.files[0]) return;
   const fr = new FileReader();
-  fr.onload = () => { try { const d = JSON.parse(fr.result); if (!hydrate(d)) throw 0; if (d.photos) Object.entries(d.photos).forEach(([k, v]) => PH.put(k, v).catch(() => {})); save(); closeSheet(); render(); toast(`불러왔어요 · 촬영 ${S.jobs.length}건`); } catch (x) { toast('품삯 백업 파일이 아니에요'); } };
+  fr.onload = () => { try { const d = JSON.parse(fr.result); if (!hydrate(d)) throw 0; if (d.photos) Object.entries(d.photos).forEach(([k, v]) => PH.put(k, v).catch(() => {})); save(); closeSheet(); render(); toast(`불러왔어요 · 촬영 ${S.jobs.length}건`); } catch (x) { toast('PUMSAK 백업 파일이 아니에요'); } };
   fr.readAsText(e.target.files[0]);
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheetRoot').hidden) closeSheet(); });
@@ -1754,6 +1749,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232014').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232020').catch(() => {}));</script>
 </body>
 </html>
