@@ -1029,8 +1029,7 @@ async function drawStory() {
   const cx = 90, cy = 440, cw = W - 180, ch = 1060;
   g.save(); g.translate(cx + cw / 2, cy + ch / 2); g.rotate(-.026); g.translate(-cw / 2, -ch / 2);
   g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 60; g.shadowOffsetY = 24; rr(g, 0, 0, cw, ch, 44); g.fillStyle = '#F6F5F2'; g.fill(); g.restore();
-  g.font = `600 36px ${KR}`; g.fillStyle = '#8A919B'; g.fillText('오늘의 촬영운', 70, 120);
-  g.font = `700 54px ${KR}`; for (let i = 0; i < 5; i++) { g.fillStyle = i < f.score ? '#E28B0B' : 'rgba(226,139,11,.2)'; g.fillText('★', cw - 70 - (5 - i) * 58, 124); }
+  g.font = `700 54px ${KR}`; for (let i = 0; i < 5; i++) { g.fillStyle = i < f.score ? '#E28B0B' : 'rgba(226,139,11,.2)'; g.fillText('★', 70 + i * 58, 150); }
   g.font = `800 76px ${KR}`; g.fillStyle = '#16181C';
   const lines = wrapText(g, f.line, cw - 140), lh = 104, top = 260 + Math.max(0, (4 - lines.length)) * lh / 2;
   lines.forEach((l, i) => g.fillText(l, 70, top + i * lh));
@@ -1046,6 +1045,23 @@ async function drawStory() {
   g.fillStyle = 'rgba(255,125,140,.75)'; [[34, 104], [116, 104]].forEach(([x, y]) => { g.beginPath(); g.ellipse(x, y, 12, 7, 0, 0, 7); g.fill(); });
   g.strokeStyle = '#fff'; g.lineWidth = 4; g.lineCap = 'round'; g.beginPath(); g.arc(75, 102, 8, .2, Math.PI - .2); g.stroke();
   g.fillStyle = '#7CC6FF'; g.beginPath(); g.moveTo(166, 40); g.quadraticCurveTo(180, 64, 166, 74); g.quadraticCurveTo(152, 64, 166, 40); g.fill();
+  g.restore();
+  // 개퍼 테이프 — 카드 위쪽을 붙잡고, 흰 매직으로 라벨
+  g.save(); g.translate(cw - 250, 4); g.rotate(.07);
+  const tw = 380, th = 96, tr = seeded('gaff-' + TODAY), zig = n => Array.from({ length: n + 1 }, (_, i) => [i / n, tr()]);
+  g.beginPath(); g.moveTo(-tw / 2, -th / 2);
+  g.lineTo(tw / 2, -th / 2); zig(9).forEach(([t, r]) => g.lineTo(tw / 2 + (r - .5) * 16 + (t % 2 ? 4 : -4), -th / 2 + t * th));
+  g.lineTo(-tw / 2, th / 2); zig(9).reverse().forEach(([t, r]) => g.lineTo(-tw / 2 + (r - .5) * 16, -th / 2 + t * th));
+  g.closePath();
+  g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 14; g.shadowOffsetY = 6; g.fillStyle = '#2C2E32'; g.fill(); g.restore();
+  g.save(); g.clip();
+  const tg = g.createLinearGradient(0, -th / 2, 0, th / 2); tg.addColorStop(0, 'rgba(255,255,255,.10)'); tg.addColorStop(.5, 'rgba(255,255,255,0)'); tg.addColorStop(1, 'rgba(0,0,0,.18)');
+  g.fillStyle = tg; g.fillRect(-tw, -th, tw * 2, th * 2);
+  g.globalAlpha = .07; g.fillStyle = '#fff'; for (let x = -tw / 2; x < tw / 2; x += 5) g.fillRect(x, -th / 2, 1.5, th); for (let y = -th / 2; y < th / 2; y += 6) g.fillRect(-tw / 2, y, tw, 1); g.globalAlpha = 1;
+  g.restore();
+  g.font = `800 42px ${KR}`; g.fillStyle = 'rgba(248,248,245,.94)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.save(); g.rotate(-.02); g.fillText('오늘의 촬영운', 0, 3); g.restore();
+  g.textAlign = 'left'; g.textBaseline = 'alphabetic';
   g.restore();
   g.restore();
   // 하단
@@ -1738,6 +1754,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232012').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232014').catch(() => {}));</script>
 </body>
 </html>
