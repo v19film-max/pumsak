@@ -19,7 +19,8 @@
 <meta name="theme-color" content="#EDEEF0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"></noscript>
 <style>
 :root{
   --bg:#EDEEF0; --surface:#FBFBFC; --surface-2:#F4F5F6; --surface-3:#E7E8EB;
@@ -116,15 +117,46 @@ button{cursor:pointer}
 .sheet .alert + .alert{margin-top:0}
 
 /* ── wallet stack (메탈·플라스틱 소재 카드) ── */
-.stack{position:relative;height:236px;margin:6px 0 4px;touch-action:pan-y;perspective:1000px}
-.wcard{--rx:0deg;--ry:0deg;--gx:50%;--gy:30%;--edge:0;--ang:45deg;
-  position:absolute;left:0;right:0;bottom:0;height:208px;border-radius:20px;padding:20px 20px 0;overflow:hidden;
-  transform-origin:50% 0;transition:transform .5s var(--spring), filter .5s var(--ease), opacity .4s;
-  user-select:none;-webkit-user-select:none;cursor:grab;isolation:isolate}
-.wcard[data-pos="0"]{transform:translateY(0) scale(1) rotateX(var(--rx)) rotateY(var(--ry));z-index:3}
-.wcard[data-pos="1"]{transform:translateY(-13px) scale(.94);z-index:2;filter:brightness(.82)}
-.wcard[data-pos="2"]{transform:translateY(-26px) scale(.88);z-index:1;filter:brightness(.66)}
-.wcard.tilting{transition:transform .12s linear, filter .5s}
+.stack{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  margin:4px -16px 0;padding:10px 16px 18px;scroll-padding-inline:16px;scrollbar-width:none;perspective:1100px;overscroll-behavior-x:contain}
+.stack::-webkit-scrollbar{display:none}
+.wcard{--rx:0deg;--ry:0deg;--gx:50%;--gy:30%;--edge:0;--ang:45deg;--sy:0deg;--ss:1;--br:1;
+  position:relative;flex:0 0 calc(100% - 26px);height:208px;border-radius:20px;padding:20px 20px 0;overflow:hidden;
+  scroll-snap-align:center;scroll-snap-stop:always;
+  transform:rotateY(var(--sy)) scale(var(--ss)) rotateX(var(--rx)) rotateY(var(--ry));filter:brightness(var(--br));
+  transition:transform .18s var(--ease), filter .2s;user-select:none;-webkit-user-select:none;isolation:isolate}
+.wcard.tilting{transition:transform .08s linear, filter .2s}
+.dots i{cursor:pointer}
+.w-amt{appearance:none;border:0;background:none;color:inherit;padding:2px 0;margin-left:auto;cursor:pointer;border-radius:10px;transition:transform .15s var(--ease), background .2s}
+.w-amt:active{transform:scale(.96);background:rgba(127,127,127,.12)}
+.w-amt svg{transition:transform .2s var(--ease)}
+.w-amt:hover svg{transform:translateX(2px)}
+/* 다가오는 촬영 공지 */
+.next{position:relative;padding:18px;overflow:hidden}
+.next .n-top{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3);font-weight:600}
+.next .dd{font-family:var(--num);font-weight:800;font-size:12px;padding:3px 9px;border-radius:999px;background:var(--ink);color:var(--surface)}
+.next .dd.today{background:var(--rec);color:#fff}
+.next .n-t{font-size:18px;font-weight:800;letter-spacing:-.03em;margin-top:8px}
+.next .n-s{font-size:13px;color:var(--ink-3);margin-top:2px}
+.tl{display:flex;align-items:stretch;gap:0;margin-top:14px;border-radius:16px;background:var(--surface-2);overflow:hidden}
+.tl > div{flex:1;padding:11px 12px}
+.tl > div + div{border-left:1px solid var(--line)}
+.tl .k{font-size:11.5px;color:var(--ink-3)}
+.tl .v{font-family:var(--num);font-size:20px;font-weight:700;letter-spacing:-.02em}
+.tl .v small{font-size:12px;font-weight:600;color:var(--ink-3);margin-left:3px}
+.tl .v.warn{color:var(--bad)}
+.next .n-b{display:flex;gap:8px;margin-top:12px}
+.next .n-b .pb{flex:1}
+.wrapfix{display:flex;align-items:center;gap:10px;padding:14px 16px}
+.wrapfix .tx{flex:1;font-size:13.5px;font-weight:600}
+.wrapfix .tx small{display:block;font-weight:400;font-size:12px;color:var(--ink-3)}
+.wrapfix input{width:104px;flex:none}
+/* 월별 막대 */
+.mbars{display:flex;align-items:flex-end;gap:6px;height:130px;padding:6px 2px 0}
+.mbars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%}
+.mbars i{display:block;width:100%;border-radius:6px 6px 3px 3px;background:var(--surface-3);min-height:3px;transition:height .6s var(--ease)}
+.mbars div.on i{background:var(--accent)}
+.mbars span{font-size:10.5px;color:var(--ink-3);font-family:var(--num)}
 .wcard::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit}
 /* 헤어라인(브러시드) + 노이즈 + 광택 */
 .wcard .grain{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
@@ -517,13 +549,13 @@ const alertOf = j => (j.alertDays === 0 || j.alertDays) ? j.alertDays : S.settin
 const snoozed = j => j.snoozeUntil && j.snoozeUntil > TODAY;
 const alerts = () => S.jobs.filter(j => status(j) === 'overdue' && !snoozed(j)).sort((a, b) => a.date.localeCompare(b.date));
 let S = { jobs: [], settings: { ...DEFAULT_SETTINGS }, sample: true };
-let tab = 'home', cardOrder = [0, 1, 2], settleFilter = 'open';
+let tab = 'home', activeCard = 0, settleFilter = 'open';
 let calY, calM, calSel = TODAY;
 { const d = new Date(); calY = d.getFullYear(); calM = d.getMonth(); }
 
 function sampleJobs() {
   const T = TODAY;
-  const mk = (o) => ({ id: uid(), kind: 'MV', role: '촬영팀 1st', baseHours: 12, extra: 0, nego: null, tax: '3.3', paidAt: null, memo: '', expenses: [], ...o,
+  const mk = (o) => ({ id: uid(), kind: 'MV', role: '촬영팀 1st', baseHours: 12, extra: 0, nego: null, tax: '3.3', paidAt: null, memo: '', place: '', wrapFixed: true, expenses: [], ...o,
     otRate: o.otRate ?? defaultOt(o.dayPay) });
   return [
     mk({ title: "LUCID 'Blue Hour'", company: '모노필름', date: addDays(T, -58), call: '06:00', wrap: '23:30', dayPay: 450000,
@@ -532,10 +564,10 @@ function sampleJobs() {
     mk({ title: '뷰티 브랜드 SNS 광고', kind: 'CF', company: '오브젝트랩', date: addDays(T, -19), call: '09:00', wrap: '19:00', dayPay: 350000, nego: 400000, memo: '오버 없이 40으로 네고. 이 덕션은 원래 정산 느림', alertDays: 60,
       expenses: [{ id: uid(), cat: '식대', amount: 9000, memo: '', claim: false, receipt: false }] }),
     mk({ title: "해온 'Paper Plane'", company: '블랭크비주얼', date: addDays(T, -12), call: '08:00', wrap: '22:00', dayPay: 400000 }),
-    mk({ title: "NOVA 'Static' 2회차", company: '모노필름', date: addDays(T, -2), call: '05:30', wrap: '01:00', dayPay: 450000,
+    mk({ title: "NOVA 'Static' 2회차", company: '모노필름', date: addDays(T, -1), call: '05:30', wrap: '22:00', dayPay: 450000, wrapFixed: false,
       expenses: [{ id: uid(), cat: '택시', amount: 27400, memo: '새벽 귀가', claim: true, receipt: true }] }),
-    mk({ title: '자동차 브랜드 필름', kind: 'CF', company: '스튜디오 하루', date: addDays(T, 3), call: '06:00', wrap: '20:00', dayPay: 550000 }),
-    mk({ title: '인디밴드 라이브 클립', company: '사운드웨이브', date: addDays(T, 9), call: '10:00', wrap: '20:00', dayPay: 250000, tax: '0' }),
+    mk({ title: '자동차 브랜드 필름', kind: 'CF', company: '스튜디오 하루', date: addDays(T, 1), call: '06:00', wrap: '20:00', dayPay: 550000, place: '파주 헤이리 로케', wrapFixed: false }),
+    mk({ title: '인디밴드 라이브 클립', company: '사운드웨이브', date: addDays(T, 9), call: '10:00', wrap: '20:00', dayPay: 250000, tax: '0', place: '홍대 클럽 FF', wrapFixed: false }),
     mk({ title: "RENA 'Mirror'", company: '블랭크비주얼', date: addDays(T, -95), call: '07:00', wrap: '22:30', dayPay: 400000, paidAt: addDays(T, -50) }),
   ];
 }
@@ -642,7 +674,7 @@ const I = {
 /* ───────── views ───────── */
 function jobRow(j) {
   const s = status(j), c = calc(j);
-  const sub = `${esc(j.company || '제작사 미입력')} · ${fmtDs(j.date)}${isOpen(s) && elapsed(j) > 0 ? ` · ${elapsed(j)}일째` : ''}`;
+  const sub = (s === 'upcoming' || s === 'today') ? `${fmtDs(j.date)} · 콜 ${j.call} → 엔드 ${j.wrap}${j.place ? ` · ${esc(j.place)}` : ''}` : `${esc(j.company || '제작사 미입력')} · ${fmtDs(j.date)}${isOpen(s) && elapsed(j) > 0 ? ` · ${elapsed(j)}일째` : ''}`;
   return `<button class="row" data-act="openJob" data-id="${j.id}">
     <span class="kind ${j.kind}">${KIND[j.kind] || '기타'}</span>
     <span class="r-main"><span class="r-t" style="display:block">${esc(j.title)}</span><span class="r-s" style="display:block">${sub}</span></span>
@@ -667,28 +699,45 @@ function walletCards(t) {
 function walletHTML(t) {
   const cards = walletCards(t);
   return `<div class="stack" id="stack">${cards.map((c, i) => `
-    <div class="wcard ${c.cls}" data-card="${i}" data-pos="${cardOrder.indexOf(i)}">
+    <div class="wcard ${c.cls}" data-card="${i}">
       <div class="grain"></div><div class="sheen"></div><div class="glow"></div>
       <div class="in">
         <div class="w-top">
           <div><div class="wordmark">PUM<br>SAK<small>${i === 0 ? 'Wrap' : i === 1 ? 'Next' : 'Year'}</small></div><div class="chipslate"></div></div>
           <div class="w-sum">
             <div class="w-label">${c.pill ? `<span class="w-pill">${c.pill}</span>` : ''}${c.label}</div>
-            <div class="w-amt"><span class="num" data-count="${Math.round(c.amt)}">${won(c.amt)}</span><span class="u">원</span>${I.chev}</div>
+            <button class="w-amt" data-act="cardDetail" data-card="${i}" aria-label="${c.label} 자세히 보기"><span class="num" data-count="${Math.round(c.amt)}">${won(c.amt)}</span><span class="u">원</span>${I.chev}</button>
             <div class="w-sub">${c.sub}</div>
           </div>
         </div>
         <div class="w-foot">${c.foot.map(f => `<span>${f[0]}<b>${f[1]}</b></span>`).join('')}</div>
       </div>
     </div>`).join('')}</div>
-    <div class="dots">${[0, 1, 2].map(i => `<i class="${cardOrder[0] === i ? 'on' : ''}"></i>`).join('')}</div>`;
+    <div class="dots">${[0, 1, 2].map(i => `<i class="${activeCard === i ? 'on' : ''}" data-act="dot" data-card="${i}"></i>`).join('')}</div>`;
+}
+
+function nextHTML(j) {
+  const c = calc(j), dd = dday(j.date), h = Math.floor(c.mins / 60), m = c.mins % 60;
+  return `<div class="card next">
+    <div class="n-top"><span class="dd ${dd === 0 ? 'today' : ''}">${dd === 0 ? '오늘' : dd === 1 ? '내일' : `D-${dd}`}</span>${fmtD(j.date)} · ${KIND[j.kind]}</div>
+    <div class="n-t">${esc(j.title)}</div>
+    <div class="n-s">${esc(j.company || '제작사 미입력')}${j.role ? ` · ${esc(j.role)}` : ''}${j.place ? ` · 📍 ${esc(j.place)}` : ''}</div>
+    <div class="tl">
+      <div><div class="k">콜타임</div><div class="v">${j.call}</div></div>
+      <div><div class="k">예상 엔드</div><div class="v">${j.wrap}<small>${h}h${m ? m + 'm' : ''}</small></div></div>
+      <div><div class="k">예상 오버</div><div class="v ${c.otH ? 'warn' : ''}">${c.otH ? `+${c.otH}h` : '없음'}</div></div>
+    </div>
+    <div class="n-b"><button class="pb sm" data-act="openJob" data-id="${j.id}">자세히</button><button class="pb sm" data-act="copyNotice" data-id="${j.id}">일정 공유 문구 복사</button></div>
+  </div>`;
 }
 
 function viewHome() {
   const t = totals();
   const overdue = alerts();
   const todays = S.jobs.filter(j => j.date === TODAY);
-  const upcoming = S.jobs.filter(j => j.date > TODAY).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+  const upcoming = S.jobs.filter(j => j.date > TODAY).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
+  const all = todays.concat(upcoming), nextJob = all[0], rest = all.slice(1);
+  const needWrap = S.jobs.filter(j => j.date <= TODAY && !j.wrapFixed && !j.paidAt && elapsed(j) <= 14).sort((a, b) => b.date.localeCompare(a.date));
   const f = fortune();
   let greet;
   if (t.overdueN) greet = `정산이 늦어지는 촬영이<br><em>${t.overdueN}건</em> 있어요`;
@@ -712,8 +761,10 @@ function viewHome() {
       <div class="a-s">${esc(j.company)} · ${fmtD(j.date)} 촬영</div>
       <div class="a-b"><button class="pb sm" data-act="copyReq" data-id="${j.id}">정산 요청 문자 복사</button><button class="pb sm good" data-act="markPaid" data-id="${j.id}"><span class="spec"></span>입금 확인</button></div>
     </div>`; }).join('')}</section>` : ''}
+  ${needWrap.length ? `<section class="sec"><div class="sec-h"><h2>랩타임을 확정해 주세요</h2></div><div class="card" style="padding:4px 0">${needWrap.map(j => `<div class="wrapfix"><span class="tx">${esc(j.title)}<small>${fmtDs(j.date)} · 콜 ${j.call} · 예상 엔드 ${j.wrap} — 실제로 몇 시에 끝났나요?</small></span><input class="inp num" type="time" id="fw-${j.id}" value="${j.wrap}" aria-label="실제 랩타임"><button class="pb sm primary" data-act="fixWrap" data-id="${j.id}"><span class="spec"></span>확정</button></div>`).join('')}</div></section>` : ''}
   <section class="sec"><div class="sec-h"><h2>다가오는 촬영</h2><button class="more" data-tab-go="cal">일정 보기</button></div>
-    <div class="card" style="padding:6px">${(todays.concat(upcoming)).length ? todays.concat(upcoming).map(jobRow).join('') : '<div class="empty">잡힌 촬영이 없어요. 셔터 버튼으로 추가해 보세요.</div>'}</div>
+    ${nextJob ? nextHTML(nextJob) : ''}
+    ${rest.length ? `<div class="card" style="padding:6px;margin-top:10px">${rest.map(jobRow).join('')}</div>` : nextJob ? '' : '<div class="card"><div class="empty">잡힌 촬영이 없어요. 셔터 버튼으로 추가해 보세요.</div></div>'}
   </section>
   <section class="sec"><button class="card teaser" data-tab-go="luck">
     <span class="dial">${f.score}<small style="font-size:9px">/5</small></span>
@@ -862,62 +913,52 @@ function render() {
 }
 function countUp() {
   if (reduce) return;
-  const el = document.querySelector(`.wcard[data-pos="0"] [data-count]`); if (!el) return;
+  const el = document.querySelector(`.wcard[data-card="${activeCard}"] [data-count]`); if (!el) return;
   const to = +el.dataset.count, t0 = performance.now(), dur = 700;
   const step = now => { const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3); el.textContent = won(to * e); if (p < 1) requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
 
-/* ProfileCard 틸트 + BorderGlow 이식 (iddot main.js renderPointer) */
+/* 가로 스크롤 카드 — 스크롤 위치에 따라 살짝 회전·축소, 마우스는 ProfileCard 틸트(iddot 이식) */
 function bindStack() {
   const stack = $('#stack'); if (!stack) return;
-  let sx = 0, sy = 0, down = false, moved = false, frame = 0, pending = null;
-  const top = () => stack.querySelector('.wcard[data-pos="0"]');
-  function paint() {
-    frame = 0; const e = pending; pending = null; const card = top(); if (!e || !card || reduce) return;
-    const r = card.getBoundingClientRect();
-    const px = e.clientX - r.left, py = e.clientY - r.top, x = px / r.width, y = py / r.height;
-    const cx = r.width / 2, cy = r.height / 2;
-    const edge = Math.min(1, Math.max(Math.abs(px - cx) / cx, Math.abs(py - cy) / cy));
-    let ang = Math.atan2(py - cy, px - cx) * 180 / Math.PI + 90; if (ang < 0) ang += 360;
-    card.classList.add('tilting');
-    card.style.setProperty('--rx', ((0.5 - y) * 10).toFixed(2) + 'deg');
-    card.style.setProperty('--ry', ((x - 0.5) * 14).toFixed(2) + 'deg');
-    card.style.setProperty('--gx', (x * 100).toFixed(1) + '%');
-    card.style.setProperty('--gy', (y * 100).toFixed(1) + '%');
-    card.style.setProperty('--edge', Math.max(0, (edge - .45) / .55).toFixed(3));
-    card.style.setProperty('--ang', ang.toFixed(1) + 'deg');
-  }
-  function reset() {
-    const card = top(); if (!card) return;
-    card.classList.remove('tilting');
-    ['--rx', '--ry'].forEach(p => card.style.setProperty(p, '0deg'));
-    card.style.setProperty('--gx', '50%'); card.style.setProperty('--gy', '30%'); card.style.setProperty('--edge', '0');
-  }
-  stack.addEventListener('pointermove', e => {
-    if (e.pointerType === 'mouse' || down) { pending = e; if (!frame) frame = requestAnimationFrame(paint); }
-    if (down && Math.abs(e.clientX - sx) > 8) moved = true;
-  }, { passive: true });
-  stack.addEventListener('pointerdown', e => { down = true; moved = false; sx = e.clientX; sy = e.clientY; pending = e; if (!frame) frame = requestAnimationFrame(paint); });
-  const up = e => {
-    if (!down) return; down = false;
-    const dx = e.clientX - sx, dy = e.clientY - sy;
-    if (e.pointerType !== 'mouse') reset();
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) cycle(dx < 0 ? 1 : -1);
-    else if (!moved && Math.abs(dy) < 8) cycle(1);
+  const cards = [...stack.querySelectorAll('.wcard')];
+  let raf = 0;
+  const paintScroll = () => {
+    raf = 0;
+    const r = stack.getBoundingClientRect(), mid = r.left + r.width / 2;
+    let best = 0, bestD = 1e9;
+    cards.forEach((c, i) => {
+      const b = c.getBoundingClientRect(), off = Math.max(-1, Math.min(1, (b.left + b.width / 2 - mid) / b.width));
+      if (!reduce) { c.style.setProperty('--sy', (off * -14).toFixed(2) + 'deg'); c.style.setProperty('--ss', (1 - Math.abs(off) * .07).toFixed(3)); }
+      c.style.setProperty('--br', (1 - Math.abs(off) * .25).toFixed(3));
+      c.style.setProperty('--gx', (50 - off * 60).toFixed(1) + '%');
+      if (Math.abs(off) < bestD) { bestD = Math.abs(off); best = i; }
+    });
+    if (best !== activeCard) { activeCard = best; document.querySelectorAll('.dots i').forEach((d, i) => d.classList.toggle('on', i === best)); buzz(); countUp(); }
   };
-  stack.addEventListener('pointerup', up);
-  stack.addEventListener('pointercancel', () => { down = false; reset(); });
-  stack.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') reset(); });
+  stack.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(paintScroll); }, { passive: true });
+  if (activeCard) stack.scrollLeft = cards[activeCard].offsetLeft - 16;
+  paintScroll();
+  // 마우스 틸트 + 테두리 광택
+  cards.forEach(card => {
+    card.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse' || reduce) return;
+      const b = card.getBoundingClientRect(), px = e.clientX - b.left, py = e.clientY - b.top, x = px / b.width, y = py / b.height;
+      const cx = b.width / 2, cy = b.height / 2, edge = Math.min(1, Math.max(Math.abs(px - cx) / cx, Math.abs(py - cy) / cy));
+      let ang = Math.atan2(py - cy, px - cx) * 180 / Math.PI + 90; if (ang < 0) ang += 360;
+      card.classList.add('tilting');
+      card.style.setProperty('--rx', ((0.5 - y) * 10).toFixed(2) + 'deg'); card.style.setProperty('--ry', ((x - 0.5) * 14).toFixed(2) + 'deg');
+      card.style.setProperty('--gx', (x * 100).toFixed(1) + '%'); card.style.setProperty('--gy', (y * 100).toFixed(1) + '%');
+      card.style.setProperty('--edge', Math.max(0, (edge - .45) / .55).toFixed(3)); card.style.setProperty('--ang', ang.toFixed(1) + 'deg');
+    }, { passive: true });
+    card.addEventListener('pointerleave', () => {
+      card.classList.remove('tilting');
+      ['--rx', '--ry'].forEach(p => card.style.setProperty(p, '0deg')); card.style.setProperty('--gy', '30%'); card.style.setProperty('--edge', '0');
+    });
+  });
 }
-function cycle(dir) {
-  const c = document.querySelector('.wcard[data-pos="0"]');
-  if (c) { c.classList.remove('tilting'); ['--rx', '--ry'].forEach(p => c.style.setProperty(p, '0deg')); c.style.setProperty('--edge', '0'); }
-  cardOrder = dir > 0 ? [...cardOrder.slice(1), cardOrder[0]] : [cardOrder[2], cardOrder[0], cardOrder[1]];
-  document.querySelectorAll('.wcard').forEach(el => el.dataset.pos = cardOrder.indexOf(+el.dataset.card));
-  document.querySelectorAll('.dots i').forEach((d, i) => d.classList.toggle('on', i === cardOrder[0]));
-  buzz(); countUp();
-}
+function goCard(i) { const st = $('#stack'), c = st && st.querySelector(`.wcard[data-card="${i}"]`); if (c) st.scrollTo({ left: c.offsetLeft - 16, behavior: reduce ? 'auto' : 'smooth' }); }
 
 /* ───────── sheet ───────── */
 let sheetOnClose = null;
@@ -940,13 +981,13 @@ let draft = null, step = 0;
 function newDraft(date) {
   const st = S.settings, d = date || TODAY;
   return { id: null, title: '', kind: 'MV', company: '', role: st.role, date: d, call: '07:00', wrap: '21:00', dayPay: st.dayPay, baseHours: st.baseHours,
-    otRate: defaultOt(st.dayPay), otAuto: true, extra: 0, negoOn: false, nego: 0, tax: st.tax, alertDays: null, memo: '', expenses: [], paidAt: null };
+    otRate: defaultOt(st.dayPay), otAuto: true, extra: 0, negoOn: false, nego: 0, tax: st.tax, alertDays: null, place: '', memo: '', expenses: [], paidAt: null };
 }
 function draftFrom(j) {
   return { ...JSON.parse(JSON.stringify(j)), otAuto: j.otRate === defaultOt(j.dayPay), negoOn: j.nego != null, nego: j.nego ?? calc(j).auto, alertDays: j.alertDays ?? null };
 }
 function draftToJob(d) {
-  const j = { id: d.id || uid(), title: d.title.trim() || '제목 없는 촬영', kind: d.kind, company: d.company.trim(), role: d.role.trim(), date: d.date, call: d.call, wrap: d.wrap,
+  const j = { id: d.id || uid(), title: d.title.trim() || '제목 없는 촬영', kind: d.kind, company: d.company.trim(), role: d.role.trim(), date: d.date, call: d.call, wrap: d.wrap, place: (d.place || '').trim(), wrapFixed: d.date < TODAY || !!d.wrapFixed,
     dayPay: num(d.dayPay), baseHours: num(d.baseHours) || 12, otRate: num(d.otRate), extra: num(d.extra), nego: d.negoOn ? num(d.nego) : null,
     tax: d.tax, alertDays: d.alertDays === null || d.alertDays === '' ? null : +d.alertDays, snoozeUntil: d.snoozeUntil || null, paidAt: d.paidAt || null, memo: d.memo, expenses: d.expenses.filter(e => num(e.amount) > 0).map(e => ({ ...e, amount: num(e.amount) })) };
   return j;
@@ -962,7 +1003,7 @@ function roller(field, val, label) {
 }
 function formHTML() {
   const d = draft, edit = !!d.id;
-  const stepNames = ['기본 정보', '시간 · 페이', '공제 · 사비'];
+  const stepNames = ['촬영 일정', '페이', '공제 · 사비'];
   return `
   <div class="sh-t">${edit ? '촬영 수정' : '촬영 추가'}</div>
   <div class="sh-s">${edit ? '네고로 바뀐 금액도 여기서 고치면 돼요' : '3단계면 끝나요'}</div>
@@ -977,13 +1018,15 @@ function formHTML() {
     </div>
     <datalist id="co-list">${[...new Set(S.jobs.map(j => j.company).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join('')}</datalist>
     <div class="fld"><label for="f-date">촬영일</label><input class="inp" type="date" id="f-date" data-f="date" value="${d.date}"></div>
+    <div class="two">
+      <div class="fld"><label for="f-call">콜타임</label><input class="inp num" type="time" id="f-call" data-f="call" value="${d.call}"></div>
+      <div class="fld"><label for="f-wrap" id="wrapLbl">${d.date >= TODAY ? '예상 엔드' : '실제 랩타임'}</label><input class="inp num" type="time" id="f-wrap" data-f="wrap" value="${d.wrap}"></div>
+    </div>
+    <div class="qchips" style="margin:-8px 0 16px">${[10, 12, 14].map(h => `<button type="button" class="chip" data-act="endAfter" data-h="${h}">콜 +${h}시간</button>`).join('')}</div>
+    <div class="fld"><label for="f-place">촬영지 (선택)</label><input class="inp" id="f-place" data-f="place" value="${esc(d.place || '')}" placeholder="예: 파주 스튜디오 A동 / 을지로 로케"></div>
   </div>
 
   <div class="step ${step === 1 ? 'on' : ''}">
-    <div class="two">
-      <div class="fld"><label for="f-call">콜타임</label><input class="inp num" type="time" id="f-call" data-f="call" value="${d.call}"></div>
-      <div class="fld"><label for="f-wrap">랩타임 ${d.date > TODAY ? '(예상)' : ''}</label><input class="inp num" type="time" id="f-wrap" data-f="wrap" value="${d.wrap}"></div>
-    </div>
     <div class="fld"><span class="lbl">데이페이</span>${roller('dayPay', d.dayPay, '데이페이')}
       <div class="qchips">${[250000, 300000, 350000, 400000, 450000, 500000].map(v => `<button type="button" class="chip" data-act="setMoney" data-f="dayPay" data-v="${v}">${v / 10000}만</button>`).join('')}</div></div>
     <div class="two">
@@ -1053,6 +1096,7 @@ function setDraft(f, v) {
   draft[f] = v;
   if (f === 'dayPay' && draft.otAuto) { draft.otRate = defaultOt(v); const o = $('#f-ot'); if (o) o.value = won(draft.otRate); }
   if (f === 'otRate') { draft.otAuto = false; const s = document.querySelector('[data-f="otAuto"]'); if (s) { s.classList.remove('on'); s.setAttribute('aria-pressed', 'false'); } }
+  if (f === 'date') { const l = $('#wrapLbl'); if (l) l.textContent = v >= TODAY ? '예상 엔드' : '실제 랩타임'; }
   refreshPreview();
 }
 
@@ -1085,6 +1129,8 @@ function detailHTML(j) {
   <div style="display:flex;align-items:center;gap:8px;margin:2px 2px 0"><span class="st ${s}">${ST_LABEL[s]}</span>${j.paidAt ? `<span style="font-size:12px;color:var(--ink-3)">${fmtDs(j.paidAt)} 입금</span>` : ''}</div>
   <div class="sh-t">${esc(j.title)}</div>
   <div class="meta"><span>${KIND[j.kind]}</span><span>${esc(j.company || '제작사 미입력')}</span>${j.role ? `<span>${esc(j.role)}</span>` : ''}<span>${fmtD(j.date)}</span>${isOpen(s) && elapsed(j) > 0 ? `<span>촬영 후 ${elapsed(j)}일째</span>` : ''}<span>알림 ${alertOf(j) ? `${alertOf(j)}일` : '꺼짐'}${j.alertDays == null ? ' (기본)' : ''}</span></div>
+  ${j.place ? `<div class="note" style="margin:-6px 2px 12px">📍 ${esc(j.place)}</div>` : ''}
+  ${j.date <= TODAY && !j.wrapFixed && !j.paidAt ? `<div class="toggle-row" style="margin-bottom:12px"><span class="tx">실제 랩타임 확정<small>예상 엔드 ${j.wrap} · 실제 시간을 넣으면 오버차지가 다시 계산돼요</small></span><input class="inp num" type="time" id="fw-${j.id}" value="${j.wrap}" style="width:104px;padding:8px 10px" aria-label="실제 랩타임"><button class="pb sm primary" data-act="fixWrap" data-id="${j.id}"><span class="spec"></span>확정</button></div>` : ''}
   <div class="receipt">
     <div class="kv"><span>데이페이</span><span class="num ${c.negoOn ? 'strike' : ''}">${won(j.dayPay)}</span></div>
     <div class="kv"><span>오버차지 ${c.otH}시간 × ${won(j.otRate)}</span><span class="num ${c.negoOn ? 'strike' : ''}">${won(c.ot)}</span></div>
@@ -1099,7 +1145,7 @@ function detailHTML(j) {
   </div>
   <div class="tbar">
     <div class="track"><i class="base" style="width:${baseW / total * 100}%"></i><i class="ot" style="width:${otW / total * 100}%"></i></div>
-    <div class="lab"><span class="num">콜 ${j.call}</span><span>${otW ? `기본 ${j.baseHours}h + 오버 ${Math.round(otW / 6) / 10}h` : `${Math.round(c.mins / 6) / 10}h · 오버 없음`}</span><span class="num">랩 ${j.wrap}</span></div>
+    <div class="lab"><span class="num">콜 ${j.call}</span><span>${otW ? `기본 ${j.baseHours}h + 오버 ${Math.round(otW / 6) / 10}h` : `${Math.round(c.mins / 6) / 10}h · 오버 없음`}</span><span class="num">${j.date > TODAY || !j.wrapFixed ? '예상 엔드' : '랩'} ${j.wrap}</span></div>
   </div>
   <div class="sec" style="margin-top:20px"><div class="sec-h" style="margin-bottom:8px"><h2 style="font-size:15px">사비 지출</h2><span style="font-size:12px;color:var(--ink-3)">청구 ${won(c.claim)} · 본인 부담 ${won(c.self)}</span></div>
     <div id="exDetail">${exEditorHTML(j.expenses || [], 'job')}</div></div>
@@ -1140,11 +1186,39 @@ function installHint() {
   return `<div class="banner" style="margin-top:8px;background:var(--surface-2);color:var(--ink-2)"><span><b style="color:var(--ink)">앱처럼 쓰기</b><br>${ios ? '사파리 아래 공유 버튼 → <b>홈 화면에 추가</b>' : '브라우저 메뉴(⋮) → <b>홈 화면에 추가</b>'}</span><button class="pb sm" data-act="hideInstall">닫기</button></div>`;
 }
 
+/* ───────── 카드 › 상세 ───────── */
+function cardDetailHTML(i) {
+  const t = totals();
+  const open = S.jobs.filter(j => isOpen(status(j))).sort((a, b) => a.date.localeCompare(b.date));
+  const up = S.jobs.filter(j => status(j) === 'upcoming').sort((a, b) => a.date.localeCompare(b.date));
+  const list = (arr, empty) => `<div class="card" style="padding:6px;box-shadow:none;background:var(--surface-2)">${arr.length ? arr.map(jobRow).join('') : `<div class="empty">${empty}</div>`}</div>`;
+  if (i === 0) return `<div class="sh-t">받을 돈 <span class="num">${won(t.owed)}원</span></div>
+    <div class="sh-s">촬영은 끝났는데 아직 입금 확인이 안 된 촬영 ${open.length}건 · 오래된 순</div>
+    <div class="receipt" style="margin-bottom:18px"><div class="kv"><span>세전 합계</span><b class="num">${won(t.owedGross)}</b></div><div class="kv"><span>원천징수</span><span class="num">−${won(t.owedTax)}</span></div><div class="kv"><span>청구 사비</span><span class="num">+${won(t.claim)}</span></div><div class="hr"></div><div class="tot"><span style="font-weight:600">실수령 예정</span><b>${won(t.owed)}원</b></div></div>
+    ${list(open, '밀린 페이가 없어요')}<div class="sh-actions"><button class="pb primary" data-act="closeSheet"><span class="spec"></span>닫기</button></div>`;
+  if (i === 1) return `<div class="sh-t">앞으로 들어올 돈 <span class="num">${won(t.owed + t.future)}원</span></div>
+    <div class="sh-s">받을 돈 ${won(t.owed)}원 + 예정 촬영 ${won(t.future)}원 (예상 엔드 기준)</div>
+    <div class="lbl" style="margin-top:6px">받을 돈 · ${open.length}건</div>${list(open, '없어요')}
+    <div class="lbl" style="margin-top:16px">예정 촬영 · ${up.length}건</div>${list(up, '잡힌 촬영이 없어요')}
+    <div class="sh-actions"><button class="pb primary" data-act="closeSheet"><span class="spec"></span>닫기</button></div>`;
+  const y = TODAY.slice(0, 4), cm = +TODAY.slice(5, 7), m = Array(12).fill(0), n = Array(12).fill(0);
+  S.jobs.forEach(j => { if (j.date.startsWith(y) && j.date <= TODAY) { const k = +j.date.slice(5, 7) - 1; m[k] += calc(j).gross; n[k]++; } });
+  const max = Math.max(...m, 1), best = m.indexOf(Math.max(...m));
+  return `<div class="sh-t">${y}년 번 돈 <span class="num">${won(t.yearGross)}원</span></div>
+    <div class="sh-s">세전 · 촬영일 기준 · ${t.yearN}회차${m[best] ? ` · 가장 바빴던 달 ${best + 1}월` : ''}</div>
+    <div class="card" style="box-shadow:none;background:var(--surface-2)"><div class="mbars">${m.slice(0, cm).map((v, k) => `<div class="${k === cm - 1 ? 'on' : ''}" title="${k + 1}월 ${won(v)}원 · ${n[k]}회차"><i style="height:${Math.max(2, v / max * 100)}%"></i><span>${k + 1}</span></div>`).join('')}</div></div>
+    <div class="receipt" style="margin-top:14px"><div class="kv"><span>세전 누계</span><b class="num">${won(t.yearGross)}</b></div><div class="kv"><span>원천징수 누계</span><span class="num">${won(t.yearTax)}</span></div><div class="kv"><span>입금 완료 (실수령)</span><span class="num">${won(t.yearNet)}</span></div><div class="kv"><span>본인 부담 사비</span><span class="num">${won(t.yearSelf)}</span></div></div>
+    <div class="note">월평균 ${won(t.yearGross / Math.max(cm, 1))}원 · 촬영 1회 평균 ${won(t.yearGross / Math.max(t.yearN, 1))}원</div>
+    <div class="sh-actions"><button class="pb primary" data-act="closeSheet"><span class="spec"></span>닫기</button></div>`;
+}
+
 /* ───────── 정산 알림 ───────── */
 function bellHTML() {
   const list = alerts(), snz = S.jobs.filter(j => status(j) === 'overdue' && snoozed(j));
   const lvl = j => elapsed(j) >= alertOf(j) + 30 ? '장기 미정산' : '기준 초과';
-  return `<div class="sh-t">정산 알림</div><div class="sh-s">촬영 후 기준 기간(기본 ${S.settings.alertDays}일)이 지나도 입금 확인이 안 된 촬영이에요</div>
+  const soon = S.jobs.filter(j => !j.paidAt && (dday(j.date) === 0 || dday(j.date) === 1)).sort((a, b) => (a.date + a.call).localeCompare(b.date + b.call));
+  return `<div class="sh-t">알림</div>
+  ${soon.length ? `<div class="lbl" style="margin:4px 2px 8px">다가오는 촬영</div>${soon.map(j => `<div class="ex" style="margin-bottom:6px"><div class="ex-m"><div class="ex-t">${dday(j.date) === 0 ? '<span class="st today">오늘</span>' : '<span class="st upcoming">내일</span>'} ${esc(j.title)}</div><div class="ex-s">콜 ${j.call} → 예상 엔드 ${j.wrap}${j.place ? ` · ${esc(j.place)}` : ''}</div></div><button class="tick" data-act="openJob" data-id="${j.id}">보기</button></div>`).join('')}<div class="lbl" style="margin:18px 2px 8px">정산 확인</div>` : ''}<div class="sh-s">촬영 후 기준 기간(기본 ${S.settings.alertDays}일)이 지나도 입금 확인이 안 된 촬영이에요</div>
   <div id="bellList">${list.length ? list.map(j => { const c = calc(j); return `<div class="alert">
     <div class="a-h">${I.warn} ${lvl(j)} · 촬영 후 ${elapsed(j)}일째 <span style="margin-left:auto;color:var(--ink-3);font-weight:500">기준 ${alertOf(j)}일</span></div>
     <div class="a-t">${esc(j.title)} <span class="num">${won(c.net)}원</span></div>
@@ -1158,7 +1232,7 @@ function bellHTML() {
   <div id="copyFallback"></div>`;
 }
 function updateBell() {
-  const n = alerts().length, b = $('#bellBadge');
+  const n = alerts().length + S.jobs.filter(j => !j.paidAt && (dday(j.date) === 0 || dday(j.date) === 1)).length, b = $('#bellBadge');
   let seen = false; try { seen = localStorage.getItem('calltime.bellSeen') === TODAY; } catch (e) {}
   b.textContent = n; b.hidden = !n; $('#bellBtn').classList.toggle('ring', !!n && !seen);
 }
@@ -1194,6 +1268,10 @@ function settingsHTML() {
 /* ───────── actions ───────── */
 const A = {
   closeSheet: () => closeSheet(),
+  cardDetail: (t) => { buzz(); openSheet(cardDetailHTML(+t.dataset.card)); },
+  dot: (t) => goCard(+t.dataset.card),
+  endAfter: (t) => { const c = minutesOf(draft.call); if (c == null) return; const m = (c + (+t.dataset.h) * 60) % 1440; const v = `${pad(Math.floor(m / 60))}:${pad(m % 60)}`; $('#f-wrap').value = v; setDraft('wrap', v); buzz(); },
+  fixWrap: (t) => { const j = S.jobs.find(x => x.id === t.dataset.id), inp = $('#fw-' + j.id); if (!inp || !inp.value) return; j.wrap = inp.value; j.wrapFixed = true; save(); buzz('MEDIUM'); const c = calc(j); if ($('#sheetRoot').hidden) render(); else refreshDetail(), render(); toast(c.otH ? `랩 ${j.wrap} 확정 · 오버 ${c.otH}시간 반영` : `랩 ${j.wrap} 확정`); },
   hideInstall: () => { try { localStorage.setItem('calltime.installHint', 'off'); } catch (e) {} render(); },
   exportData: async () => {
     const fs = plug('Filesystem'), sh = plug('Share');
@@ -1234,6 +1312,7 @@ const A = {
   goStep: (t) => {
     const n = +t.dataset.n;
     if (n > step && step === 0 && !draft.title.trim()) { toast('프로젝트명을 적어주세요'); $('#f-title').focus(); return; }
+    if (n > 0 && !draft.call) { toast('콜타임을 적어주세요'); return; }
     step = n; rerenderForm(); $('.sheet').scrollTop = 0;
   },
   saveJob: () => {
@@ -1254,6 +1333,11 @@ const A = {
   delJob: (t) => {
     if (!t.dataset.armed) { t.dataset.armed = '1'; t.textContent = '한 번 더 누르면 삭제돼요'; setTimeout(() => { if (t.isConnected) { delete t.dataset.armed; t.textContent = '삭제'; } }, 3000); return; }
     S.jobs = S.jobs.filter(x => x.id !== t.dataset.id); save(); closeSheet(); render(); toast('삭제했어요');
+  },
+  copyNotice: (t) => {
+    const j = S.jobs.find(x => x.id === t.dataset.id), c = calc(j);
+    const text = [`[촬영 공지] ${fmtD(j.date)}`, `「${j.title}」${j.company ? ` · ${j.company}` : ''}`, `콜 ${j.call} → 예상 엔드 ${j.wrap} (${Math.floor(c.mins / 60)}시간${c.mins % 60 ? ` ${c.mins % 60}분` : ''})`, j.place ? `장소 ${j.place}` : '', j.memo ? `메모 ${j.memo}` : ''].filter(Boolean).join('\n');
+    try { navigator.clipboard.writeText(text).then(() => toast('일정 문구를 복사했어요'), () => toast('복사가 막혀 있어요')); } catch (e) { toast('복사가 막혀 있어요'); }
   },
   copyReq: (t) => {
     const j = S.jobs.find(x => x.id === t.dataset.id), text = reqText(j);
@@ -1334,6 +1418,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231913').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231940').catch(() => {}));</script>
 </body>
 </html>
