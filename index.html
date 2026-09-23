@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="description" content="뮤비·광고 촬영 스태프를 위한 페이 지갑. 데이페이·오버차지·3.3%·사비·미정산 알림을 한 번에.">
+<meta name="description" content="촬영 끝나고 페이 까먹지 말라고 만든 앱. 오버차지, 3.3%, 사비까지 알아서 계산해줘요.">
 <meta property="og:title" content="품삯 — 촬영 스태프 페이 지갑">
-<meta property="og:description" content="받을 돈, 미정산 촬영, 오버차지 계산을 한눈에.">
+<meta property="og:description" content="촬영 끝나고 페이 까먹지 말라고 만든 앱">
 <meta property="og:image" content="icons/og.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -19,8 +19,8 @@
 <meta name="theme-color" content="#EDEEF0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Gaegu:wght@400;700&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Gaegu:wght@400;700&display=swap"></noscript>
 <style>
 :root{
   --bg:#EDEEF0; --surface:#FBFBFC; --surface-2:#F4F5F6; --surface-3:#E7E8EB;
@@ -1008,40 +1008,63 @@ function wrapText(g, text, maxW) {
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 async function drawStory() {
   const f = fortune(), W = 1080, H = 1920;
-  try { await Promise.all(['800 72px "Noto Sans KR"', '500 34px "Noto Sans KR"', '800 64px Outfit'].map(x => document.fonts.load(x))); } catch (e) {}
+  const HAND = 'Gaegu, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif';
+  try { await Promise.all(['700 90px Gaegu', '400 50px Gaegu'].map(x => document.fonts.load(x, '가나다'))); } catch (e) {}
   const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
-  const KR = '"Noto Sans KR", "Apple SD Gothic Neo", sans-serif', EN = 'Outfit, "Avenir Next", sans-serif';
-  // 블랙 메탈 배경 + 헤어라인
-  const bg = g.createLinearGradient(0, 0, W * .4, H); bg.addColorStop(0, '#2A2C31'); bg.addColorStop(.5, '#16171A'); bg.addColorStop(1, '#0C0D0F');
-  g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  g.globalAlpha = .035; g.fillStyle = '#fff'; for (let x = 0; x < W; x += 3) g.fillRect(x, 0, 1, H); g.globalAlpha = 1;
-  const glow = g.createRadialGradient(W * .78, H * .12, 0, W * .78, H * .12, 700); glow.addColorStop(0, 'rgba(255,255,255,.10)'); glow.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
-  // 상단: 워드마크 + 날짜
-  g.textBaseline = 'alphabetic';
-  g.font = `800 76px ${EN}`; g.fillStyle = '#3A3D43'; g.fillText('PUMSAK', 90, 230);
-  g.fillStyle = 'rgba(255,255,255,.10)'; g.fillText('PUMSAK', 90, 228);
-  const d = parse(TODAY); g.font = `500 34px ${KR}`; g.fillStyle = '#8A8F97'; g.textAlign = 'right';
-  g.fillText(`${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} ${WD[d.getDay()]}요일`, W - 90, 224); g.textAlign = 'left';
-  // 슬레이트 스트라이프
-  const sy = 330; g.save(); rr(g, 90, sy, W - 180, 54, 14); g.clip(); g.fillStyle = '#2B2D31'; g.fillRect(90, sy, W - 180, 54);
-  g.fillStyle = '#E6E7EA'; for (let x = 60; x < W; x += 150) { g.beginPath(); g.moveTo(x, sy + 54); g.lineTo(x + 40, sy); g.lineTo(x + 100, sy); g.lineTo(x + 60, sy + 54); g.closePath(); g.fill(); } g.restore();
-  // 운세 카드
-  const cx = 90, cy = 420, cw = W - 180, ch = 1080;
-  g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 60; g.shadowOffsetY = 24; rr(g, cx, cy, cw, ch, 44); g.fillStyle = '#F6F5F2'; g.fill(); g.restore();
-  g.font = `600 36px ${KR}`; g.fillStyle = '#8A919B'; g.fillText('오늘의 촬영운', cx + 70, cy + 120);
-  g.font = `700 54px ${KR}`; for (let i = 0; i < 5; i++) { g.fillStyle = i < f.score ? '#E28B0B' : 'rgba(226,139,11,.2)'; g.fillText('★', cx + cw - 70 - (5 - i) * 58, cy + 124); }
-  g.font = `800 76px ${KR}`; g.fillStyle = '#16181C';
-  const lines = wrapText(g, f.line, cw - 140), lh = 104, top = cy + 260 + Math.max(0, (4 - lines.length)) * lh / 2;
-  lines.forEach((l, i) => g.fillText(l, cx + 70, top + i * lh));
-  g.fillStyle = '#E1E3E6'; g.fillRect(cx + 70, cy + ch - 220, cw - 140, 2);
-  g.font = `500 38px ${KR}`; g.fillStyle = '#6B7280';
-  wrapText(g, f.sub, cw - 140).slice(0, 2).forEach((l, i) => g.fillText(l, cx + 70, cy + ch - 140 + i * 54));
-  // REC 점
-  g.fillStyle = '#E8312F'; g.beginPath(); g.arc(cx + cw - 80, cy + 110, 0, 0, 7); g.fill();
+  const rnd = seeded('story-' + TODAY), j = (n = 4) => (rnd() - .5) * n;
+  // 삐뚤빼뚤 선
+  const wob = (pts, close) => { g.beginPath(); pts.forEach(([x, y], i) => { const px = x + j(3), py = y + j(3); i ? g.lineTo(px, py) : g.moveTo(px, py); }); if (close) g.closePath(); };
+  const wobRect = (x, y, w, h) => { const p = []; const seg = 8; for (let i = 0; i <= seg; i++) p.push([x + w * i / seg, y]); for (let i = 1; i <= seg; i++) p.push([x + w, y + h * i / seg]); for (let i = 1; i <= seg; i++) p.push([x + w - w * i / seg, y + h]); for (let i = 1; i < seg; i++) p.push([x, y + h - h * i / seg]); wob(p, true); };
+  const star = (cx, cy, r, fill) => { const p = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; p.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); } wob(p, true); if (fill) { g.fillStyle = '#FFB938'; g.fill(); } g.lineWidth = 5; g.strokeStyle = '#2B2B2B'; g.stroke(); };
+  // 노란 모눈 메모지
+  g.fillStyle = '#FFEFB5'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(214,176,90,.28)'; g.lineWidth = 2;
+  for (let x = 40; x < W; x += 60) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  for (let y = 40; y < H; y += 60) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+  // 제목 (살짝 기울게) + 밑줄 낙서
+  const d = parse(TODAY);
+  g.save(); g.translate(100, 300); g.rotate(-.05);
+  g.font = `700 104px ${HAND}`; g.fillStyle = '#2B2B2B'; g.fillText('오늘의 촬영운', 0, 0);
+  g.lineWidth = 7; g.strokeStyle = '#FF6B6B'; g.lineCap = 'round';
+  wob(Array.from({ length: 14 }, (_, i) => [i * 45, 34 + (i % 2 ? 10 : -4)])); g.stroke();
+  g.restore();
+  g.save(); g.translate(W - 110, 190); g.rotate(.08); g.textAlign = 'right';
+  g.font = `400 54px ${HAND}`; g.fillStyle = '#7A6A45'; g.fillText(`${d.getMonth() + 1}/${d.getDate()} (${WD[d.getDay()]})`, 0, 0); g.restore();
+  // 포스트잇 (비뚤게) + 그림자
+  const nx = 120, ny = 470, nw = 840, nh = 900;
+  g.save(); g.translate(nx + nw / 2, ny + nh / 2); g.rotate(.025); g.translate(-nw / 2, -nh / 2);
+  g.save(); g.shadowColor = 'rgba(120,90,20,.25)'; g.shadowBlur = 30; g.shadowOffsetY = 18; g.fillStyle = '#FFFDF4'; g.fillRect(0, 0, nw, nh); g.restore();
+  g.fillStyle = 'rgba(0,0,0,.035)'; g.beginPath(); g.moveTo(nw, nh - 70); g.lineTo(nw - 70, nh); g.lineTo(nw, nh); g.fill(); // 접힌 귀퉁이
+  // 마스킹 테이프
+  g.save(); g.translate(nw / 2, -6); g.rotate(-.06); g.fillStyle = 'rgba(255,170,190,.72)'; g.fillRect(-150, -34, 300, 68);
+  g.fillStyle = 'rgba(255,255,255,.35)'; for (let i = -140; i < 150; i += 26) g.fillRect(i, -34, 10, 68); g.restore();
+  // 별점
+  g.font = `400 50px ${HAND}`; g.fillStyle = '#8A7A55'; g.fillText('럭키지수', 70, 130);
+  for (let i = 0; i < 5; i++) star(330 + i * 82, 112, 32, i < f.score);
+  // 운세 한 줄
+  g.font = `700 92px ${HAND}`; g.fillStyle = '#2B2B2B';
+  const lines = wrapText(g, f.line, nw - 150), lh = 116, top = 330 + Math.max(0, 3 - lines.length) * lh / 2;
+  lines.forEach((l, i) => g.fillText(l, 72 + j(6), top + i * lh));
+  // 한마디
+  g.font = `400 54px ${HAND}`; g.fillStyle = '#8A7A55';
+  wrapText(g, '→ ' + f.sub, nw - 150).slice(0, 2).forEach((l, i) => g.fillText(l, 72, nh - 150 + i * 64));
+  g.restore();
+  // 슬레이트 친구 낙서 (오른쪽 아래)
+  g.save(); g.translate(790, 1500); g.rotate(-.12); g.lineWidth = 6; g.strokeStyle = '#2B2B2B'; g.lineJoin = 'round'; g.lineCap = 'round';
+  wobRect(0, 60, 190, 140); g.fillStyle = '#3A3A3A'; g.fill(); g.stroke();                        // 몸통
+  g.save(); g.translate(0, 58); g.rotate(-.22); wobRect(0, -40, 196, 40); g.fillStyle = '#fff'; g.fill(); g.stroke();
+  g.fillStyle = '#2B2B2B'; for (let x = 18; x < 190; x += 44) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 18, -40); g.lineTo(x + 36, -40); g.lineTo(x + 18, 0); g.fill(); } g.restore(); // 뚜껑
+  g.fillStyle = '#fff'; [[62, 118], [128, 118]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); });      // 눈
+  g.fillStyle = 'rgba(255,120,140,.8)'; [[42, 146], [150, 146]].forEach(([x, y]) => { g.beginPath(); g.ellipse(x, y, 16, 9, 0, 0, 7); g.fill(); }); // 볼터치
+  g.strokeStyle = '#fff'; g.lineWidth = 5; wob([[84, 150], [95, 158], [106, 150]]); g.stroke();                                  // 입
+  g.strokeStyle = '#2B2B2B'; g.lineWidth = 6; wob([[60, 200], [52, 250], [40, 252]]); g.stroke(); wob([[130, 200], [138, 250], [152, 252]]); g.stroke(); // 다리
+  g.fillStyle = '#7CC6FF'; g.beginPath(); g.moveTo(214, 70); g.quadraticCurveTo(232, 100, 214, 112); g.quadraticCurveTo(196, 100, 214, 70); g.fill(); // 땀
+  g.restore();
+  g.save(); g.translate(430, 1590); g.rotate(-.05); g.font = `400 46px ${HAND}`; g.fillStyle = '#7A6A45'; g.fillText('오늘도 무사 랩', 0, 0);
+  g.fillText('기원합니다…', 30, 58); g.restore();
   // 하단
-  g.fillStyle = '#E8312F'; g.beginPath(); g.arc(104, 1690, 13, 0, 7); g.fill();
-  g.font = `700 40px ${KR}`; g.fillStyle = '#E6E7EA'; g.fillText('품삯', 134, 1704);
-  g.font = `500 34px ${KR}`; g.fillStyle = '#8A8F97'; g.fillText('촬영 스태프 페이 지갑 · 매일 바뀌는 촬영운', 90, 1770);
+  g.font = `700 64px ${HAND}`; g.fillStyle = '#2B2B2B'; g.fillText('품삯', 100, 1760);
+  g.font = `400 46px ${HAND}`; g.fillStyle = '#7A6A45'; g.fillText('페이 까먹지 말라고 만든 앱', 100, 1822);
   return c;
 }
 async function shareStory() {
@@ -1728,6 +1751,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232009').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232012').catch(() => {}));</script>
 </body>
 </html>

@@ -7,7 +7,7 @@
  "display": "standalone",
  "background_color": "#EDEEF0",
  "theme_color": "#EDEEF0",
- "description": "촬영 스태프 페이 지갑",
+ "description": "촬영 끝나고 페이 까먹지 말라고 만든 앱",
  "icons": [
   {
    "src": "icons/icon-192.png",
