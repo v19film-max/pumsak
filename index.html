@@ -1841,8 +1841,10 @@ window.addEventListener('pointermove', e => {
 
 /* ───────── boot ───────── */
 const local = loadLocal();
-const FRESH = !hydrate(local);
-if (FRESH) { S.jobs = []; S.sample = false; }
+let FRESH = !hydrate(local);
+// 예전 버전의 예시 데이터가 남아 있으면 지우고 처음부터 (예시 데이터는 더 이상 쓰지 않음)
+if (!FRESH && S.sample) { FRESH = true; try { localStorage.removeItem('calltime.onboarded'); } catch (e) {} }
+if (FRESH) { S.jobs = []; S.sample = false; try { localStorage.setItem(LS, JSON.stringify(snapshot())); } catch (e) {} }
 if (!S.settings.firstOpen) { S.settings.firstOpen = TODAY; try { localStorage.setItem(LS, JSON.stringify(snapshot())); } catch (e) {} }
 render();
 setTimeout(cleanupPhotos, 3000);
@@ -1852,6 +1854,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232104').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232107').catch(() => {}));</script>
 </body>
 </html>
