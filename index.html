@@ -405,6 +405,9 @@ button{cursor:pointer}
 .fb-line .ch{display:inline-block;opacity:0;transform:translateY(12px)}
 .flip.on .fb-line .ch{animation:ch .5s var(--ease) forwards;animation-delay:calc(.45s + var(--i) * 22ms)}
 @keyframes ch{to{opacity:1;transform:none}}
+.story-btn{margin-top:14px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .4s .6s var(--ease), transform .4s .6s var(--ease);
+  color:#fff;background:linear-gradient(135deg,#F58529 0%,#DD2A7B 45%,#8134AF 75%,#515BD4 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,.3), inset 0 -2px 1px rgba(0,0,0,.2), 0 10px 22px -10px rgba(221,42,123,.6)}
+.flip.on ~ .story-btn{opacity:1;transform:none;pointer-events:auto}
 .f-foot{text-align:center;font-size:12px;color:var(--ink-3);margin-top:14px}
 
 /* ── sheet ─────────────────────── */
@@ -610,7 +613,7 @@ function sampleJobs() {
     mk({ title: "LUCID 'Blue Hour'", company: '모노필름', date: addDays(T, -58), call: '06:00', wrap: '23:30', dayPay: 450000,
       expenses: [{ id: uid(), cat: '유류비', amount: 38000, memo: '장비 픽업 왕복', claim: true, receipt: true }, { id: uid(), cat: '주차비', amount: 12000, memo: '', claim: true, receipt: false }] }),
     mk({ title: '스포츠음료 TVC 30s', kind: 'CF', company: '스튜디오 하루', date: addDays(T, -33), call: '07:00', wrap: '20:00', dayPay: 500000, paidAt: addDays(T, -3) }),
-    mk({ title: '뷰티 브랜드 SNS 광고', kind: 'CF', company: '오브젝트랩', date: addDays(T, -19), call: '09:00', wrap: '19:00', dayPay: 350000, nego: 400000, memo: '오버 없이 40으로 네고. 이 덕션은 원래 정산 느림', alertDays: 60,
+    mk({ title: '뷰티 브랜드 SNS 광고', kind: 'CF', company: '오브젝트랩', date: addDays(T, -19), call: '09:00', wrap: '19:00', dayPay: 350000, nego: 400000, memo: '오버 포함 40으로 확정. 이 덕션은 원래 정산 느림', alertDays: 60,
       expenses: [{ id: uid(), cat: '식대', amount: 9000, memo: '', claim: false, receipt: false }] }),
     mk({ title: "해온 'Paper Plane'", company: '블랭크비주얼', date: addDays(T, -12), call: '08:00', wrap: '22:00', dayPay: 400000 }),
     mk({ title: "NOVA 'Static' 2회차", company: '모노필름', date: addDays(T, -1), call: '05:30', wrap: '22:00', dayPay: 450000, wrapFixed: false,
@@ -847,7 +850,7 @@ function viewCal() {
   </div>
   <div class="tiles">
     <div class="card tile"><div class="k">${calM + 1}월 촬영</div><div class="v num">${monthJobs.length}회차</div><div class="s">${new Set(monthJobs.map(j => j.date)).size}일 현장</div></div>
-    <div class="card tile"><div class="k">${calM + 1}월 세전 합계</div><div class="v num">${won(mGross)}원</div><div class="s">오버차지·네고 반영</div></div>
+    <div class="card tile"><div class="k">${calM + 1}월 세전 합계</div><div class="v num">${won(mGross)}원</div><div class="s">오버차지·확정 금액 반영</div></div>
   </div>
   <section class="sec"><div class="sec-h"><h2>${fmtD(calSel)}</h2><button class="more" data-act="newJob" data-date="${calSel}">+ 이 날 추가</button></div>
     <div class="card" style="padding:6px">${sel.length ? sel.map(jobRow).join('') : '<div class="empty">이 날은 쉬는 날이에요</div>'}</div>
@@ -940,7 +943,7 @@ const F_LINES = [
   '오늘 밥차에 계란말이가 나오면 대박 운',
   '사과박스 위에 커피 올려두지 마세요. 오늘은 쏟는 날',
   '막내에게 커피 한 잔 사면 복이 두 배로 돌아옵니다',
-  'PD님 기분이 좋은 날. 네고는 오늘 하세요',
+  'PD님 기분이 좋은 날. 페이 얘기는 오늘 꺼내세요',
   '처음 보는 스태프가 다음 작품을 물어다 줄 운',
   '현장 분위기 메이커가 될 운명. 농담 하나 준비하세요',
   '오늘 인사 한 번이 다음 콜로 돌아옵니다',
@@ -954,7 +957,7 @@ const F_LINES = [
   '오버차지 시간은 오늘 바로 적어두세요. 내일이면 까먹어요',
   '정산 서류는 랩 하자마자 보내는 게 이득',
   '입금 알림 소리가 들릴 기운. 진동 모드를 풀어두세요',
-  '오늘 한 네고는 반드시 문자로 남기세요',
+  '오늘 정한 페이는 반드시 문자로 남기세요',
   '통장보다 스케줄표를 보세요. 좋은 콜이 들어옵니다',
   '세금계산서는 오늘 끊어야 이번 달 안에 들어와요',
 ];
@@ -986,7 +989,79 @@ function viewLuck() {
       </div>
     </div>
   </div>
+  <button class="pb block story-btn" data-act="shareStory"><span class="spec"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>스토리로 공유</button>
   <div class="f-foot">재미로 보는 운세예요 · 매일 자정에 바뀝니다</div>`;
+}
+
+/* ───────── 촬영운 → 인스타 스토리 이미지 (1080×1920) ───────── */
+function wrapText(g, text, maxW) {
+  const out = []; let line = '';
+  for (const w of text.split(' ')) {
+    const t = line ? line + ' ' + w : w;
+    if (g.measureText(t).width <= maxW) { line = t; continue; }
+    if (line) out.push(line);
+    if (g.measureText(w).width <= maxW) { line = w; continue; }
+    line = ''; for (const ch of w) { if (g.measureText(line + ch).width > maxW) { out.push(line); line = ch; } else line += ch; }
+  }
+  if (line) out.push(line); return out;
+}
+function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+async function drawStory() {
+  const f = fortune(), W = 1080, H = 1920;
+  try { await Promise.all(['800 72px "Noto Sans KR"', '500 34px "Noto Sans KR"', '800 64px Outfit'].map(x => document.fonts.load(x))); } catch (e) {}
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  const KR = '"Noto Sans KR", "Apple SD Gothic Neo", sans-serif', EN = 'Outfit, "Avenir Next", sans-serif';
+  // 블랙 메탈 배경 + 헤어라인
+  const bg = g.createLinearGradient(0, 0, W * .4, H); bg.addColorStop(0, '#2A2C31'); bg.addColorStop(.5, '#16171A'); bg.addColorStop(1, '#0C0D0F');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.globalAlpha = .035; g.fillStyle = '#fff'; for (let x = 0; x < W; x += 3) g.fillRect(x, 0, 1, H); g.globalAlpha = 1;
+  const glow = g.createRadialGradient(W * .78, H * .12, 0, W * .78, H * .12, 700); glow.addColorStop(0, 'rgba(255,255,255,.10)'); glow.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = glow; g.fillRect(0, 0, W, H);
+  // 상단: 워드마크 + 날짜
+  g.textBaseline = 'alphabetic';
+  g.font = `800 76px ${EN}`; g.fillStyle = '#3A3D43'; g.fillText('PUMSAK', 90, 230);
+  g.fillStyle = 'rgba(255,255,255,.10)'; g.fillText('PUMSAK', 90, 228);
+  const d = parse(TODAY); g.font = `500 34px ${KR}`; g.fillStyle = '#8A8F97'; g.textAlign = 'right';
+  g.fillText(`${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} ${WD[d.getDay()]}요일`, W - 90, 224); g.textAlign = 'left';
+  // 슬레이트 스트라이프
+  const sy = 330; g.save(); rr(g, 90, sy, W - 180, 54, 14); g.clip(); g.fillStyle = '#2B2D31'; g.fillRect(90, sy, W - 180, 54);
+  g.fillStyle = '#E6E7EA'; for (let x = 60; x < W; x += 150) { g.beginPath(); g.moveTo(x, sy + 54); g.lineTo(x + 40, sy); g.lineTo(x + 100, sy); g.lineTo(x + 60, sy + 54); g.closePath(); g.fill(); } g.restore();
+  // 운세 카드
+  const cx = 90, cy = 420, cw = W - 180, ch = 1080;
+  g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 60; g.shadowOffsetY = 24; rr(g, cx, cy, cw, ch, 44); g.fillStyle = '#F6F5F2'; g.fill(); g.restore();
+  g.font = `600 36px ${KR}`; g.fillStyle = '#8A919B'; g.fillText('오늘의 촬영운', cx + 70, cy + 120);
+  g.font = `700 54px ${KR}`; for (let i = 0; i < 5; i++) { g.fillStyle = i < f.score ? '#E28B0B' : 'rgba(226,139,11,.2)'; g.fillText('★', cx + cw - 70 - (5 - i) * 58, cy + 124); }
+  g.font = `800 76px ${KR}`; g.fillStyle = '#16181C';
+  const lines = wrapText(g, f.line, cw - 140), lh = 104, top = cy + 260 + Math.max(0, (4 - lines.length)) * lh / 2;
+  lines.forEach((l, i) => g.fillText(l, cx + 70, top + i * lh));
+  g.fillStyle = '#E1E3E6'; g.fillRect(cx + 70, cy + ch - 220, cw - 140, 2);
+  g.font = `500 38px ${KR}`; g.fillStyle = '#6B7280';
+  wrapText(g, f.sub, cw - 140).slice(0, 2).forEach((l, i) => g.fillText(l, cx + 70, cy + ch - 140 + i * 54));
+  // REC 점
+  g.fillStyle = '#E8312F'; g.beginPath(); g.arc(cx + cw - 80, cy + 110, 0, 0, 7); g.fill();
+  // 하단
+  g.fillStyle = '#E8312F'; g.beginPath(); g.arc(104, 1690, 13, 0, 7); g.fill();
+  g.font = `700 40px ${KR}`; g.fillStyle = '#E6E7EA'; g.fillText('품삯', 134, 1704);
+  g.font = `500 34px ${KR}`; g.fillStyle = '#8A8F97'; g.fillText('촬영 스태프 페이 지갑 · 매일 바뀌는 촬영운', 90, 1770);
+  return c;
+}
+async function shareStory() {
+  toast('스토리 이미지를 만드는 중…');
+  const c = await drawStory(), name = `품삯_촬영운_${TODAY}.png`;
+  const fs = plug('Filesystem'), sh = plug('Share');
+  if (NATIVE && fs && sh) {
+    try { const w = await fs.writeFile({ path: name, data: c.toDataURL('image/png').split(',')[1], directory: 'CACHE' }); await sh.share({ title: '오늘의 촬영운', files: [w.uri] }); }
+    catch (e) { if (!/cancel/i.test(String(e && e.message))) toast('공유하지 못했어요'); }
+    return;
+  }
+  try {
+    const blob = await new Promise(r => c.toBlob(r, 'image/png')), file = new File([blob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: '오늘의 촬영운' }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  // 공유 미지원: 이미지를 띄워서 길게 눌러 저장
+  const v = document.createElement('div'); v.className = 'viewer'; v.id = 'viewer';
+  v.innerHTML = `<div class="v-cap">이미지를 길게 눌러 저장한 뒤 스토리에 올려보세요</div><img src="${c.toDataURL('image/png')}" alt="오늘의 촬영운 스토리 이미지"><div class="v-b"><button class="pb primary" data-act="phClose"><span class="spec"></span>닫기</button></div>`;
+  v.addEventListener('click', ev => { if (ev.target === v) v.remove(); });
+  document.body.appendChild(v);
 }
 
 /* ───────── render ───────── */
@@ -1127,7 +1202,7 @@ function formHTML() {
   const stepNames = ['촬영 일정', '페이', '공제 · 사비'];
   return `
   <div class="sh-t">${edit ? '촬영 수정' : '촬영 추가'}</div>
-  <div class="sh-s">${edit ? '네고로 바뀐 금액도 여기서 고치면 돼요' : '3단계면 끝나요'}</div>
+  <div class="sh-s">${edit ? '페이가 바뀌었으면 여기서 고치면 돼요' : '3단계면 끝나요'}</div>
   <div class="steps">${stepNames.map((n, i) => `<button type="button" class="${i === step ? 'on' : i < step ? 'done' : ''}" data-act="goStep" data-n="${i}">${i + 1}. ${n}</button>`).join('')}</div>
 
   <div class="step ${step === 0 ? 'on' : ''}">
@@ -1156,8 +1231,8 @@ function formHTML() {
     </div>
     <div class="toggle-row" style="margin:-4px 0 16px"><span class="tx">내 기본 오버차지 적용<small>${otRuleText()} · 설정에서 변경</small></span><button type="button" class="sw sm ${d.otAuto ? 'on' : ''}" data-act="toggle" data-f="otAuto" aria-pressed="${d.otAuto}" aria-label="내 기본 오버차지 적용"></button></div>
     <div class="fld"><label for="f-extra">기타 수당 (장비 대여 등, 과세)</label>${moneyInput('f-extra', 'extra', d.extra)}</div>
-    <div class="toggle-row"><span class="tx">네고 금액으로 받기<small>계산 대신 그날 합의한 세전 금액</small></span><button type="button" class="sw ${d.negoOn ? 'on' : ''}" data-act="toggle" data-f="negoOn" aria-pressed="${d.negoOn}" aria-label="네고 금액 사용"></button></div>
-    ${d.negoOn ? `<div class="fld" style="margin-top:10px">${roller('nego', d.nego, '네고 금액')}</div>` : ''}
+    <div class="toggle-row"><span class="tx">확정 금액으로 받기<small>시간 계산 대신 최종으로 정해진 세전 금액</small></span><button type="button" class="sw ${d.negoOn ? 'on' : ''}" data-act="toggle" data-f="negoOn" aria-pressed="${d.negoOn}" aria-label="확정 금액 사용"></button></div>
+    ${d.negoOn ? `<div class="fld" style="margin-top:10px">${roller('nego', d.nego, '확정 금액')}</div>` : ''}
     <div class="preview" id="pv" style="margin-top:14px"></div>
   </div>
 
@@ -1200,7 +1275,7 @@ function previewHTML(j) {
     <div class="kv"><span>데이페이</span><span class="num">${won(j.dayPay)}</span></div>
     <div class="kv"><span>오버 ${c.otH}시간 × ${won(j.otRate)}</span><span class="num">${won(c.ot)}</span></div>
     ${j.extra ? `<div class="kv"><span>기타 수당</span><span class="num">${won(j.extra)}</span></div>` : ''}
-    ${c.negoOn ? `<div class="kv"><span>네고 금액 적용</span><span class="num">${c.auto !== c.gross ? `<s style="opacity:.5">${won(c.auto)}</s> → ` : ''}${won(c.gross)}</span></div>` : ''}
+    ${c.negoOn ? `<div class="kv"><span>확정 금액 적용</span><span class="num">${c.auto !== c.gross ? `<s style="opacity:.5">${won(c.auto)}</s> → ` : ''}${won(c.gross)}</span></div>` : ''}
     <div class="kv"><span>원천징수 ${TAX[j.tax]}</span><span class="num">−${won(c.tax)}</span></div>
     ${c.claim ? `<div class="kv"><span>청구 사비</span><span class="num">+${won(c.claim)}</span></div>` : ''}
     <div class="big"><span>실수령 예상</span><b>${won(c.net)}원</b></div>`;
@@ -1259,7 +1334,7 @@ function detailHTML(j) {
     <div class="kv"><span>데이페이</span><span class="num ${c.negoOn ? 'strike' : ''}">${won(j.dayPay)}</span></div>
     <div class="kv"><span>오버차지 ${c.otH}시간 × ${won(j.otRate)}</span><span class="num ${c.negoOn ? 'strike' : ''}">${won(c.ot)}</span></div>
     ${j.extra ? `<div class="kv"><span>기타 수당</span><span class="num ${c.negoOn ? 'strike' : ''}">${won(j.extra)}</span></div>` : ''}
-    ${c.negoOn ? `<div class="kv"><span>네고 금액<span class="nego-tag">적용</span></span><span class="num">${won(c.gross)}</span></div>` : ''}
+    ${c.negoOn ? `<div class="kv"><span>확정 금액<span class="nego-tag">적용</span></span><span class="num">${won(c.gross)}</span></div>` : ''}
     <div class="hr"></div>
     <div class="kv"><span>세전 합계</span><b class="num">${won(c.gross)}</b></div>
     <div class="kv"><span>원천징수 ${TAX[j.tax]}${c.tax ? ` <small style="color:var(--ink-3)">(소득세 ${won(c.inc)} + 지방세 ${won(c.loc)})</small>` : ''}</span><span class="num">−${won(c.tax)}</span></div>
@@ -1292,7 +1367,7 @@ function reqText(j) {
   const c = calc(j), d = parse(j.date);
   const lines = [`안녕하세요${j.company ? `, ${j.company} 담당자님` : ''}.${j.role ? ` ${j.role}로 참여했던 스태프입니다.` : ''}`,
     `${d.getMonth() + 1}월 ${d.getDate()}일 「${j.title}」 촬영 페이 정산 확인 부탁드립니다.`, ''];
-  if (c.negoOn) lines.push(`· 합의 금액 ${won(c.gross)}원`);
+  if (c.negoOn) lines.push(`· 확정 금액 ${won(c.gross)}원`);
   else { lines.push(`· 데이페이 ${won(j.dayPay)}원`); if (c.otH) lines.push(`· 오버차지 ${c.otH}시간 (${j.call}~${j.wrap}) ${won(c.ot)}원`); if (j.extra) lines.push(`· 기타 수당 ${won(j.extra)}원`); }
   lines.push(`· 세전 합계 ${won(c.gross)}원${c.tax ? ` (${TAX[j.tax]} 공제 후 ${won(c.gross - c.tax)}원)` : ''}`);
   const cl = (j.expenses || []).filter(e => e.claim);
@@ -1480,6 +1555,7 @@ function settingsHTML() {
 /* ───────── actions ───────── */
 const A = {
   closeSheet: () => closeSheet(),
+  shareStory: () => shareStory(),
   ckTog: (t) => { const j = curJob(); j.checklist[+t.dataset.i].done = !j.checklist[+t.dataset.i].done; buzz(); save(); refreshDetail(); render(); },
   ckDel: (t) => { const j = curJob(); j.checklist.splice(+t.dataset.i, 1); save(); refreshDetail(); render(); },
   ckAdd: () => { const inp = $('#ckNew'), v = inp.value.trim(); if (!v) { inp.focus(); return; } const j = curJob(); j.checklist = j.checklist || []; v.split(/[,\n]/).map(x => x.trim()).filter(Boolean).forEach(x => j.checklist.push({ id: uid(), t: x, done: false })); save(); refreshDetail(); render(); setTimeout(() => { const n = $('#ckNew'); n && n.focus(); }, 50); },
@@ -1652,6 +1728,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232006').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232009').catch(() => {}));</script>
 </body>
 </html>
