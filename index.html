@@ -497,7 +497,9 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const num = v => { const n = Number(String(v ?? '').replace(/[^\d.-]/g, '')); return isFinite(n) ? n : 0; };
 const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
 const dday = s => Math.round((parse(s) - parse(TODAY)) / 864e5);
-const buzz = () => { try { navigator.vibrate && navigator.vibrate(6); } catch (e) {} };
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const plug = n => (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins[n]) || null;
+const buzz = (style = 'LIGHT') => { try { const h = plug('Haptics'); if (NATIVE && h) { h.impact({ style }); return; } navigator.vibrate && navigator.vibrate(6); } catch (e) {} };
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const KIND = { MV: 'M/V', CF: '광고', ETC: '기타' };
@@ -1132,7 +1134,7 @@ function reqText(j) {
 
 /* ───────── 공개 웹: 홈 화면 추가 안내 ───────── */
 function installHint() {
-  if (window.claude || matchMedia('(display-mode: standalone)').matches || navigator.standalone) return '';
+  if (NATIVE || window.claude || matchMedia('(display-mode: standalone)').matches || navigator.standalone) return '';
   try { if (localStorage.getItem('calltime.installHint') === 'off') return ''; } catch (e) {}
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   return `<div class="banner" style="margin-top:8px;background:var(--surface-2);color:var(--ink-2)"><span><b style="color:var(--ink)">앱처럼 쓰기</b><br>${ios ? '사파리 아래 공유 버튼 → <b>홈 화면에 추가</b>' : '브라우저 메뉴(⋮) → <b>홈 화면에 추가</b>'}</span><button class="pb sm" data-act="hideInstall">닫기</button></div>`;
@@ -1193,7 +1195,16 @@ function settingsHTML() {
 const A = {
   closeSheet: () => closeSheet(),
   hideInstall: () => { try { localStorage.setItem('calltime.installHint', 'off'); } catch (e) {} render(); },
-  exportData: () => {
+  exportData: async () => {
+    const fs = plug('Filesystem'), sh = plug('Share');
+    if (NATIVE && fs && sh) {
+      try {
+        const name = `품삯_백업_${TODAY}.json`;
+        const w = await fs.writeFile({ path: name, data: JSON.stringify(snapshot()), directory: 'CACHE', encoding: 'utf8' });
+        await sh.share({ title: '품삯 백업', files: [w.uri] });
+      } catch (e) { if (!/cancel/i.test(String(e && e.message))) toast('백업 파일을 만들지 못했어요'); }
+      return;
+    }
     const blob = new Blob([JSON.stringify(snapshot(), null, 1)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `품삯_백업_${TODAY}.json`;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('백업 파일을 저장했어요');
@@ -1238,7 +1249,7 @@ const A = {
   },
   exTog: (t) => { const sc = t.dataset.scope, e = exTarget(sc)[+t.dataset.i]; e[t.dataset.k] = !e[t.dataset.k]; exRefresh(sc); },
   exDel: (t) => { const sc = t.dataset.scope; exTarget(sc).splice(+t.dataset.i, 1); exRefresh(sc); },
-  markPaid: (t) => { const j = S.jobs.find(x => x.id === t.dataset.id); j.paidAt = TODAY; save(); buzz(); closeSheetIfOpen(); render(); toast(`입금 확인! ${won(calc(j).net)}원`); },
+  markPaid: (t) => { const j = S.jobs.find(x => x.id === t.dataset.id); j.paidAt = TODAY; save(); buzz('MEDIUM'); closeSheetIfOpen(); render(); toast(`입금 확인! ${won(calc(j).net)}원`); },
   unpay: (t) => { const j = S.jobs.find(x => x.id === t.dataset.id); j.paidAt = null; save(); refreshDetail(); render(); },
   delJob: (t) => {
     if (!t.dataset.armed) { t.dataset.armed = '1'; t.textContent = '한 번 더 누르면 삭제돼요'; setTimeout(() => { if (t.isConnected) { delete t.dataset.armed; t.textContent = '삭제'; } }, 3000); return; }
@@ -1323,6 +1334,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231909').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231913').catch(() => {}));</script>
 </body>
 </html>
