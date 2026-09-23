@@ -65,7 +65,9 @@
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+#scroller{height:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y}
+body.sheet-open #scroller{overflow:hidden;touch-action:none}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer}
@@ -73,7 +75,7 @@ button{cursor:pointer}
 .app{max-width:480px;margin:0 auto;padding:0 16px 150px;min-height:100%}
 
 /* ── header ───────────────────── */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:10px;padding:14px 0 10px;background:linear-gradient(var(--bg) 70%, transparent)}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:14px 0 10px;background:linear-gradient(var(--bg) 70%, transparent)}
 .top h1.brand{font-family:var(--num);font-weight:800;letter-spacing:-.05em;font-size:24px}
 .top h1{margin:0;white-space:nowrap;font-size:22px;font-weight:800;letter-spacing:-.03em;flex:1}
 .sync{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-3);padding:5px 10px;border-radius:999px;background:var(--surface-2)}
@@ -375,6 +377,12 @@ button{cursor:pointer}
 .sheet-root.open .scrim{opacity:1}
 .sheet-root.open .sheet{transform:translate(-50%,0)}
 .grab{width:38px;height:5px;border-radius:3px;background:var(--surface-3);margin:4px auto 12px}
+.sh-x{position:absolute;top:12px;right:14px;z-index:2;width:34px;height:34px;border-radius:50%;border:0;display:grid;place-items:center;color:var(--ink-2);
+  background:linear-gradient(180deg,var(--pl-top),var(--pl-bot));box-shadow:inset 0 2px 1px var(--pl-hi), inset 0 -2px 1px var(--pl-lo), 0 1px 3px rgba(0,0,0,.1)}
+.sh-x:active{transform:scale(.92)}
+.sheet{overflow-x:hidden}
+.sheet.dragging{transition:none}
+.sh-t{padding-right:44px}
 .sh-t{font-size:20px;font-weight:800;letter-spacing:-.03em;margin:4px 2px 2px}
 .sh-s{font-size:13px;color:var(--ink-3);margin:0 2px 14px}
 
@@ -391,7 +399,12 @@ button{cursor:pointer}
 .inp{width:100%;border:0;border-radius:14px;padding:13px 14px;font-size:16px;background:var(--surface-2);box-shadow:inset 0 1px 2px rgba(0,0,0,.06);outline:none;transition:box-shadow .2s, background .2s}
 .inp:focus{background:var(--surface);box-shadow:0 0 0 2px var(--accent)}
 .inp.r{text-align:right}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.two > *{min-width:0}
+.inp{min-width:0;max-width:100%;display:block;-webkit-appearance:none;appearance:none}
+input[type="date"].inp,input[type="time"].inp{min-height:48px;text-align:left}
+input[type="date"].inp::-webkit-date-and-time-value,input[type="time"].inp::-webkit-date-and-time-value{text-align:left;margin:0}
+.roller-val .inp{display:inline-block}
 .seg{display:flex;padding:4px;border-radius:14px;background:var(--surface-2);box-shadow:inset 0 1px 2px rgba(0,0,0,.07);gap:2px}
 .seg button{flex:1;border:0;background:none;border-radius:10px;padding:9px 4px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:all .2s}
 .seg button.on{color:var(--ink);background:linear-gradient(180deg,var(--pl-top),var(--pl-bot));box-shadow:inset 0 2px 1px var(--pl-hi), inset 0 -2px 1px var(--pl-lo), 0 2px 5px -1px rgba(0,0,0,.14)}
@@ -482,7 +495,7 @@ button{cursor:pointer}
 <body>
 
 
-<div class="app" id="app">
+<div id="scroller"><div class="app" id="app">
   <header class="top">
     <h1 id="ttl" class="brand">PUMSAK</h1>
     <span class="sync" id="sync"><i></i><span>이 기기에 저장</span></span>
@@ -495,7 +508,7 @@ button{cursor:pointer}
     </button>
   </header>
   <main id="view"></main>
-</div>
+</div></div>
 
 <div class="fade-blur" id="fadeBlur" aria-hidden="true"></div>
 <button class="shutter" data-act="newJob" aria-label="촬영 추가"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
@@ -507,7 +520,7 @@ button{cursor:pointer}
 </nav>
 <div class="sheet-root" id="sheetRoot" hidden>
   <div class="scrim" data-act="closeSheet"></div>
-  <div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div>
+  <div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><button class="sh-x" data-act="closeSheet" aria-label="닫기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="sheetBody"></div></div>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -964,17 +977,44 @@ function goCard(i) { const st = $('#stack'), c = st && st.querySelector(`.wcard[
 let sheetOnClose = null;
 function openSheet(html) {
   $('#sheetBody').innerHTML = html;
-  const root = $('#sheetRoot'); root.hidden = false;
+  const root = $('#sheetRoot'); root.hidden = false; document.body.classList.add('sheet-open');
   requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add('open')));
   $('.sheet').scrollTop = 0;
 }
 function closeSheet() {
-  const root = $('#sheetRoot'); root.classList.remove('open');
-  setTimeout(() => { root.hidden = true; $('#sheetBody').innerHTML = ''; }, 320);
+  const root = $('#sheetRoot'), sh = $('.sheet');
+  if (sh.style.transform) { sh.classList.remove('dragging'); sh.style.transform = 'translate(-50%,105%)'; }
+  root.classList.remove('open');
+  document.body.classList.remove('sheet-open');
+  setTimeout(() => { root.hidden = true; $('#sheetBody').innerHTML = ''; sh.style.transform = ''; }, 320);
   if (sheetOnClose) { const f = sheetOnClose; sheetOnClose = null; f(); }
 }
 let toastT = 0;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1900); }
+
+/* 시트 끌어내려 닫기 — 맨 위에서 아래로 당기면 따라 내려오고, 110px 넘게 당기면 닫힘 */
+(function bindSheetDrag() {
+  const sh = $('.sheet'); let y0 = null, dy = 0, t0 = 0;
+  $('.scrim').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+  // 시트 내용이 짧아 스크롤할 게 없을 때 뒤로 스크롤이 새지 않게
+  sh.addEventListener('touchmove', e => { if (y0 == null && sh.scrollHeight <= sh.clientHeight + 1) e.preventDefault(); }, { passive: false });
+  sh.addEventListener('touchstart', e => { if (sh.scrollTop <= 0 && !e.target.closest('.roller,input,select,textarea')) { y0 = e.touches[0].clientY; dy = 0; t0 = Date.now(); } else y0 = null; }, { passive: true });
+  sh.addEventListener('touchmove', e => {
+    if (y0 == null) return;
+    const d = e.touches[0].clientY - y0;
+    if (d <= 0 && dy === 0) { y0 = null; return; }
+    e.preventDefault(); dy = Math.max(0, d);
+    sh.classList.add('dragging'); sh.style.transform = `translate(-50%, ${dy}px)`;
+    $('.scrim').style.opacity = String(Math.max(0, 1 - dy / 400));
+  }, { passive: false });
+  const end = () => {
+    if (y0 == null) return; y0 = null; $('.scrim').style.opacity = '';
+    const fast = dy > 40 && Date.now() - t0 < 250;
+    if (dy > 110 || fast) closeSheet(); else { sh.classList.remove('dragging'); sh.style.transform = ''; }
+    dy = 0;
+  };
+  sh.addEventListener('touchend', end); sh.addEventListener('touchcancel', end);
+})();
 
 /* ───────── job form (Stepper 3단계) ───────── */
 let draft = null, step = 0;
@@ -1357,8 +1397,8 @@ function exRefresh(sc) {
 }
 
 document.addEventListener('click', e => {
-  const go = e.target.closest('[data-tab-go]'); if (go) { tab = go.dataset.tabGo; render(); scrollTo(0, 0); return; }
-  const tb = e.target.closest('[data-tab]'); if (tb) { if (tab !== tb.dataset.tab) { tab = tb.dataset.tab; render(); scrollTo(0, 0); } return; }
+  const go = e.target.closest('[data-tab-go]'); if (go) { tab = go.dataset.tabGo; render(); $('#scroller').scrollTop = 0; return; }
+  const tb = e.target.closest('[data-tab]'); if (tb) { if (tab !== tb.dataset.tab) { tab = tb.dataset.tab; render(); $('#scroller').scrollTop = 0; } return; }
   const t = e.target.closest('[data-act]'); if (!t) return;
   const fn = A[t.dataset.act]; if (fn) fn(t, e);
 });
@@ -1418,6 +1458,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231941').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231952').catch(() => {}));</script>
 </body>
 </html>
