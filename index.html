@@ -159,6 +159,16 @@ button{cursor:pointer}
 .wrapfix .tx{flex:1;font-size:13.5px;font-weight:600}
 .wrapfix .tx small{display:block;font-weight:400;font-size:12px;color:var(--ink-3)}
 .wrapfix input{width:104px;flex:none}
+/* 현장 무전 */
+.radio{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));z-index:85;transform:translate(-50%,-140%);display:flex;align-items:center;gap:10px;
+  width:max-content;max-width:calc(100vw - 32px);padding:10px 18px 10px 10px;border-radius:18px;color:#F1F2F4;background:#17181B;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 12px 30px -8px rgba(0,0,0,.5);transition:transform .45s var(--spring);pointer-events:auto}
+.radio.show{transform:translate(-50%,0)}
+.radio .rd-ic{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(180deg,#34373D,#23252A);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.radio .rd-ic i{width:8px;height:8px;border-radius:50%;background:var(--rec);box-shadow:0 0 8px rgba(232,49,47,.8);animation:rec .8s steps(2) infinite}
+.radio .rd-t{font-size:11px;color:#8A8F97;font-weight:600;letter-spacing:.02em}
+.radio .rd-m{font-size:15px;font-weight:700;letter-spacing:-.02em;line-height:1.3}
+
 /* 영수증 사진 */
 .ex-ph{flex:none;width:44px;height:44px;border-radius:10px;border:0;padding:0;overflow:hidden;background:var(--surface-3);box-shadow:0 0 0 1px var(--line), 0 2px 6px -2px rgba(0,0,0,.25)}
 .ex-ph img{width:100%;height:100%;object-fit:cover;display:block}
@@ -596,7 +606,7 @@ const EXCAT = ['유류비', '주차비', '톨비', '택시', '대중교통', '�
 
 
 /* ───────── state ───────── */
-const DEFAULT_SETTINGS = { baseHours: 12, otUnit: 60, tax: '3.3', role: '촬영팀', dayPay: 400000, otMode: 'pct', otPct: 10, otFixed: 50000, alertDays: 30 };
+const DEFAULT_SETTINGS = { baseHours: 12, otUnit: 60, tax: '3.3', role: '촬영팀', callName: '', radio: true, dayPay: 400000, otMode: 'pct', otPct: 10, otFixed: 50000, alertDays: 30 };
 const defaultOt = dayPay => S.settings.otMode === 'fixed' ? num(S.settings.otFixed) : Math.round(num(dayPay) * num(S.settings.otPct) / 100 / 1000) * 1000;
 const otRuleText = () => S.settings.otMode === 'fixed' ? `시간당 ${won(S.settings.otFixed)}원` : `데이페이의 ${S.settings.otPct}%`;
 const elapsed = j => -dday(j.date);
@@ -1061,7 +1071,7 @@ async function drawStory() {
   g.fillStyle = '#E8312F'; g.beginPath(); g.arc(104, 1690, 13, 0, 7); g.fill();
   g.font = `800 42px ${EN}`; g.fillStyle = '#E6E7EA'; g.fillText('PUMSAK', 134, 1705);
   g.font = `500 34px ${KR}`; g.fillStyle = '#8A8F97'; g.fillText('페이 까먹지 말라고 만든 앱', 90, 1770);
-  g.font = `600 26px ${EN}`; g.fillStyle = '#5A5F67'; g.textAlign = 'right'; g.fillText('made by V19FILM', W - 90, 1770); g.textAlign = 'left';
+  g.font = `500 20px ${EN}`; g.fillStyle = 'rgba(255,255,255,.18)'; g.textAlign = 'right'; g.fillText('© V19FILM', W - 90, H - 60); g.textAlign = 'left';
   return c;
 }
 async function shareStory() {
@@ -1083,6 +1093,35 @@ async function shareStory() {
   v.addEventListener('click', ev => { if (ev.target === v) v.remove(); });
   document.body.appendChild(v);
 }
+
+/* ───────── 현장 무전: 가끔 누가 부른다 ───────── */
+const hasBatchim = w => { const c = w.charCodeAt(w.length - 1); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0; };
+function callOf() { const n = (S.settings.callName || '').trim(); if (!n) return '막내야,'; return /[가-힣]$/.test(n) ? `${n}${hasBatchim(n) ? '아' : '야'},` : `${n},`; }
+function callSsi() { const n = (S.settings.callName || '').trim(); return n ? `${n} 씨,` : '막내야,'; }
+const RADIO = [
+  ['촬영감독', c => `${c} 35mm!`], ['촬영감독', c => `${c} 50mm로 바꾸자`], ['촬영감독', c => `${c} 배터리 몇 개 남았어?`],
+  ['촬영감독', c => `${c} 포커스 나갔다 한 번 더`], ['포커스풀러', c => `${c} 마크 좀 다시 찍어줘`], ['촬영감독', c => `${c} ND 하나 더 넣자`],
+  ['감독', c => `${c} 원 모어 갈게요~`], ['감독', c => `${c} 방금 거 좋았어요`], ['감독', c => `${c} 거의 다 왔어요 (아님)`],
+  ['조감독', c => `${c} 5분 뒤 슛 들어갑니다`], ['조감독', c => `${c} 밥차 왔대요`], ['조감독', c => `${c} 무전 채널 3번이요`],
+  ['조감독', c => `${c} 뒤에 빠져주세요~`], ['조감독', c => `${c} 슬레이트!`], ['조감독', c => `${c} 오늘 랩 예정 22시… 라고 합니다`],
+  ['조명감독', c => `${c} C스탠드 하나만`], ['조명감독', c => `${c} 한 스톱 내려줘`], ['조명감독', c => `${c} 디퓨전 한 장 더`],
+  ['그립', c => `${c} 샌드백 어디 갔어?`], ['연출부', c => `${c} 연무 좀 더 깔아주세요`], ['연출부', c => `${c} 강풍기 켤게요~`],
+  ['PD', c => `${c} 오늘 고생했어요. 정산 곧 할게요`], ['PD', c => `${c} 다음 주에 시간 돼요?`], ['막내', () => '선배님 커피 뭐 드세요?'],
+  ['조감독', c => `${c} 랩이요~ 수고하셨습니다!`], ['데이터 매니저', c => `${c} 카드 3번 백업 끝났어요`],
+];
+let radioT = 0;
+function radio(force) {
+  if (S.settings.radio === false && !force) return;
+  const [who, fn] = RADIO[Math.floor(Math.random() * RADIO.length)];
+  let el = $('#radio');
+  if (!el) { el = document.createElement('div'); el.className = 'radio'; el.id = 'radio'; el.setAttribute('role', 'status'); el.addEventListener('click', () => el.classList.remove('show')); document.body.appendChild(el); }
+  el.innerHTML = `<span class="rd-ic"><i></i></span><span><span class="rd-t" style="display:block">📻 ${who}</span><span class="rd-m" style="display:block"></span></span>`;
+  const polite = /(요|니다|세요)[~!?.… ]*(\(|$)/.test(fn('')) ;
+  el.querySelector('.rd-m').textContent = fn(polite ? callSsi() : callOf());
+  clearTimeout(radioT); requestAnimationFrame(() => el.classList.add('show')); buzz('MEDIUM');
+  radioT = setTimeout(() => el.classList.remove('show'), 3600);
+}
+function maybeRadio(p) { if (S.settings.radio === false || Math.random() >= p) return; setTimeout(() => radio(), 900 + Math.random() * 1600); }
 
 /* ───────── render ───────── */
 const TITLES = { home: 'PUMSAK', cal: '촬영 일정', settle: '정산', luck: '촬영운' };
@@ -1548,7 +1587,11 @@ function updateBell() {
 function settingsHTML() {
   const st = S.settings;
   return `<div class="sh-t">기본 설정</div><div class="sh-s">새 촬영을 추가할 때 기본값으로 쓰여요. 촬영마다 따로 바꿀 수 있어요.</div>
-  <div class="fld"><label for="s-role">내 포지션</label><input class="inp" id="s-role" data-sf="role" value="${esc(st.role)}"></div>
+  <div class="two">
+    <div class="fld"><label for="s-role">내 포지션</label><input class="inp" id="s-role" data-sf="role" value="${esc(st.role)}"></div>
+    <div class="fld"><label for="s-call">현장에서 불리는 이름</label><input class="inp" id="s-call" data-sf="callName" value="${esc(st.callName || '')}" placeholder="예: 승민 (비우면 막내)"></div>
+  </div>
+  <div class="toggle-row" style="margin:-4px 0 16px"><span class="tx">현장 무전<small>가끔 누가 불러요. "${esc(callOf())} 35mm!"</small></span><button type="button" class="sw sm ${st.radio !== false ? 'on' : ''}" data-act="radioTog" aria-pressed="${st.radio !== false}" aria-label="현장 무전"></button></div>
   <div class="fld"><span class="lbl">기본 근무 시간</span>${seg('s:baseHours', [[10, '10시간'], [12, '12시간']], st.baseHours)}</div>
   <div class="fld"><span class="lbl">오버차지 계산 단위</span>${seg('s:otUnit', [[30, '30분 단위 올림'], [60, '1시간 단위 올림']], st.otUnit)}</div>
   <div class="fld"><span class="lbl">기본 공제</span>${seg('s:tax', [['3.3', '3.3%'], ['8.8', '8.8%'], ['0', '없음']], st.tax)}</div>
@@ -1567,7 +1610,7 @@ function settingsHTML() {
     <input type="file" id="importFile" accept="application/json,.json" hidden></div>`}
   ${S.sample ? `<button class="pb block" style="margin-top:14px" data-act="clearSample">예시 데이터 지우고 시작하기</button>` : ''}
   <div class="note" style="text-align:center;margin-top:18px">PUMSAK 베타 · 원천징수 계산은 일반적인 기준을 적용한 참고용이에요. 실제 세액·신고는 국세청 또는 세무 전문가에게 확인하세요.</div>
-  <div class="note" style="text-align:center;margin-top:6px">© 2026 <b>V19FILM</b> · 기획·디자인·개발 V19FILM</div>
+  <div class="note" style="text-align:center;margin-top:6px">© 2026 V19FILM</div>
   <details class="note" style="margin-top:8px"><summary style="cursor:pointer;text-align:center">오픈소스 고지</summary>
     <p style="margin:8px 0 0">일부 인터랙션(카드 틸트·테두리 광택·버튼 반사광·단계 폼·점진 블러)은 React Bits(© David Haz)의 컴포넌트를 참고해 다시 구현했습니다. MIT License + Commons Clause — https://github.com/DavidHDev/react-bits</p></details>
   <div class="sh-actions"><button class="pb primary" data-act="closeSheet"><span class="spec"></span>완료</button></div>`;
@@ -1576,6 +1619,7 @@ function settingsHTML() {
 /* ───────── actions ───────── */
 const A = {
   closeSheet: () => closeSheet(),
+  radioTog: (t) => { S.settings.radio = S.settings.radio === false; save(); t.classList.toggle('on', S.settings.radio); t.setAttribute('aria-pressed', S.settings.radio); if (S.settings.radio) radio(true); },
   shareStory: () => shareStory(),
   ckTog: (t) => { const j = curJob(); j.checklist[+t.dataset.i].done = !j.checklist[+t.dataset.i].done; buzz(); save(); refreshDetail(); render(); },
   ckDel: (t) => { const j = curJob(); j.checklist.splice(+t.dataset.i, 1); save(); refreshDetail(); render(); },
@@ -1680,7 +1724,7 @@ function exRefresh(sc) {
 
 document.addEventListener('click', e => {
   const go = e.target.closest('[data-tab-go]'); if (go) { tab = go.dataset.tabGo; render(); $('#scroller').scrollTop = 0; return; }
-  const tb = e.target.closest('[data-tab]'); if (tb) { if (tab !== tb.dataset.tab) { tab = tb.dataset.tab; render(); $('#scroller').scrollTop = 0; } return; }
+  const tb = e.target.closest('[data-tab]'); if (tb) { if (tab !== tb.dataset.tab) { tab = tb.dataset.tab; render(); $('#scroller').scrollTop = 0; maybeRadio(.12); } return; }
   const t = e.target.closest('[data-act]'); if (!t) return;
   const fn = A[t.dataset.act]; if (fn) fn(t, e);
 });
@@ -1744,11 +1788,12 @@ const local = loadLocal();
 if (!hydrate(local)) { S.jobs = sampleJobs(); S.sample = true; }
 render();
 setTimeout(cleanupPhotos, 3000);
+maybeRadio(.4);
 { const n = alerts().length; let seen = false; try { seen = localStorage.getItem('calltime.bellSeen') === TODAY; } catch (e) {} if (n && !seen) setTimeout(() => toast(`🔔 정산 확인이 필요한 촬영 ${n}건`), 700); }
 initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232020').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232023').catch(() => {}));</script>
 </body>
 </html>
