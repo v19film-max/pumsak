@@ -630,7 +630,7 @@ let dbRef = null, cloud = false, saveTimer = 0, saving = Promise.resolve();
 function snapshot() { return { jobs: S.jobs, settings: S.settings, sample: S.sample, v: 1 }; }
 function hydrate(d) {
   if (!d || !Array.isArray(d.jobs)) return false;
-  S = { jobs: d.jobs.map(j => ({ expenses: [], ...j })), settings: { ...DEFAULT_SETTINGS, ...(d.settings || {}) }, sample: !!d.sample };
+  S = { jobs: d.jobs.map(j => ({ expenses: [], place: '', ...j, wrapFixed: j.wrapFixed ?? (j.date < TODAY) })), settings: { ...DEFAULT_SETTINGS, ...(d.settings || {}) }, sample: !!d.sample };
   return true;
 }
 function loadLocal() { try { const raw = localStorage.getItem(LS); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
@@ -1418,6 +1418,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231940').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609231941').catch(() => {}));</script>
 </body>
 </html>
