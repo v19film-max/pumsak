@@ -156,6 +156,22 @@ button{cursor:pointer}
 .wrapfix .tx{flex:1;font-size:13.5px;font-weight:600}
 .wrapfix .tx small{display:block;font-weight:400;font-size:12px;color:var(--ink-3)}
 .wrapfix input{width:104px;flex:none}
+/* 영수증 사진 */
+.ex-ph{flex:none;width:44px;height:44px;border-radius:10px;border:0;padding:0;overflow:hidden;background:var(--surface-3);box-shadow:0 0 0 1px var(--line), 0 2px 6px -2px rgba(0,0,0,.25)}
+.ex-ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ex-cam{flex:none;width:44px;height:44px;border-radius:12px;border:0;display:grid;place-items:center;color:var(--ink-2);
+  background:linear-gradient(180deg,var(--pl-top),var(--pl-bot));box-shadow:inset 0 2px 1px var(--pl-hi), inset 0 -2px 1px var(--pl-lo), 0 0 0 1px var(--line);transition:transform .15s var(--ease)}
+.ex-cam:active{transform:scale(.92)}
+.ex-cam svg{width:20px;height:20px}
+.ex-row2{display:flex;gap:6px;margin-top:6px}
+.pend{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2)}
+.pend img{width:44px;height:44px;border-radius:10px;object-fit:cover}
+.viewer{position:fixed;inset:0;z-index:90;background:rgba(6,7,9,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(20px + env(safe-area-inset-bottom,0px));animation:vin .25s var(--ease)}
+.viewer img{max-width:100%;max-height:calc(100% - 90px);border-radius:12px;object-fit:contain;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.viewer .v-b{display:flex;gap:10px;margin-top:18px;width:min(420px,100%)}
+.viewer .v-b .pb{flex:1}
+.viewer .v-cap{color:#C9CCD1;font-size:13px;margin-bottom:12px;text-align:center}
+
 /* 준비물 체크리스트 */
 .ck{display:flex;flex-direction:column;gap:6px}
 .ck-i{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--surface-2);transition:opacity .2s}
@@ -542,6 +558,7 @@ input[type="date"].inp::-webkit-date-and-time-value,input[type="time"].inp::-web
   <div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div>
 </div>
 <div class="toast" id="toast" role="status"></div>
+<input type="file" id="phIn" accept="image/*" capture="environment" hidden>
 
 <script>
 (() => {
@@ -881,25 +898,65 @@ function seeded(str) { let h = 1779033703 ^ str.length; for (let i = 0; i < str.
   return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
 const F_LINES = [
   '렌즈 박스 안 떨구게 조심하세요. 오늘은 손목 힘이 빠지는 날',
+  '렌즈캡은 주머니가 아니라 파우치에. 오늘 주머니는 구멍 난 날',
   'C-스탠드 다리 세 개 다 풀었는지 한 번 더 확인하세요',
+  'V마운트, 충전기에 꽂은 척만 한 건 아닌지 확인하세요',
+  '메모리 카드 포맷은 두 번 묻고 한 번 누르세요',
+  '오늘 배터리 잔량 표시는 거짓말을 합니다. 예비를 챙기세요',
+  '필터 닦는 천을 챙기면 먼지가 알아서 피해 갑니다',
+  '돌리 바퀴 브레이크 확인. 오늘은 경사로 운이 있어요',
+  '케이블 8자 감기를 제대로 하면 복이 엉키지 않아요',
+  '감마 테이프 새 롤을 뜯는 순간 운이 트입니다',
+  '짐벌 밸런스는 한 번에 잡힙니다. 오늘만큼은',
+  '무선 송출기 채널이 안 겹치는 기적의 날',
+  'ND 필터 하나가 하루를 살립니다. 가방 앞주머니 확인',
+  '삼각대 레버 잠금 두 번 확인. 오늘은 헐거움의 기운',
+  '포커스 아웃 한 번은 액땜. 두 번부터는 실력입니다',
   "오늘 '한 번만 더 갈게요'는 정확히 세 번 나옵니다",
-  '밥차 메뉴가 제육이면 오버 없이 랩합니다',
+  "'원 모어'의 기운이 강합니다. 오버차지 계산기를 준비하세요",
   '슬레이트 소리가 경쾌할수록 정산도 빨라져요',
   '모니터 앞 클라이언트가 웃으면 랩이 30분 당겨집니다',
   '무전기 채널 2번과 3번, 오늘은 헷갈리기 쉬운 날',
-  'V마운트, 충전기에 꽂은 척만 한 건 아닌지 확인하세요',
-  '감마 테이프 새 롤을 뜯는 순간 운이 트입니다',
-  '로케 화장실 위치를 제일 먼저 알아두면 하루가 편해요',
-  '사과박스 위에 커피 올려두지 마세요. 오늘은 쏟는 날',
-  '포커스 아웃 한 번은 액땜. 두 번부터는 실력입니다',
-  "'원 모어'의 기운이 강합니다. 오버차지 계산기를 준비하세요",
+  '오늘 감독님의 "좋아요"는 진심입니다',
+  '"거의 다 왔어요"라는 말은 오늘도 거짓말입니다',
+  '리허설을 믿으세요. 본 테이크가 더 좋아요',
+  '원테이크 OK가 나올 기운. 첫 테이크에 집중하세요',
   '매직아워를 잡으면 감독님 칭찬 한 번 적립',
-  '케이블 8자 감기를 제대로 하면 복이 엉키지 않아요',
-  '돌리 바퀴 브레이크 확인. 오늘은 경사로 운이 있어요',
-  '메모리 카드 포맷은 두 번 묻고 한 번 누르세요',
-  '콜타임 10분 전 도착하면 좋은 자리가 당신 겁니다',
-  '선크림 안 바르면 내일 거울 보고 놀랍니다',
+  '오늘 해는 예보보다 10분 일찍 집니다. 서두르세요',
+  '구름이 딱 필요할 때 와줄 날. 하늘을 믿으세요',
+  '연무기 오늘은 한 방에 예쁘게 깔립니다',
+  '강풍기 방향이 곧 운의 방향. 머리카락이 예쁘게 날려요',
+  '역광 컷에서 인생 프레임 나오는 날',
   '오늘 뽑은 데일리가 레퍼런스보다 좋게 나올 운',
+  '소품 연속성 체크하세요. 컵 속 커피 양이 자꾸 바뀝니다',
+  '카메라 뒤로 지나가는 행인이 없는 평화로운 날',
+  '녹음팀이 "다시 한 번"을 외칠 확률이 높아요. 조용히 걸으세요',
+  '콜타임 10분 전 도착하면 좋은 자리가 당신 겁니다',
+  '로케 화장실 위치를 제일 먼저 알아두면 하루가 편해요',
+  '주차는 오늘 한 번에 성공합니다. 첫 번째 자리를 잡으세요',
+  '장비차 문 닫기 전에 한 바퀴 둘러보세요. 뭔가 남아 있어요',
+  '철수는 빠를수록 복이 들어옵니다',
+  '밥차 메뉴가 제육이면 오버 없이 랩합니다',
+  '오늘 밥차에 계란말이가 나오면 대박 운',
+  '사과박스 위에 커피 올려두지 마세요. 오늘은 쏟는 날',
+  '막내에게 커피 한 잔 사면 복이 두 배로 돌아옵니다',
+  'PD님 기분이 좋은 날. 네고는 오늘 하세요',
+  '처음 보는 스태프가 다음 작품을 물어다 줄 운',
+  '현장 분위기 메이커가 될 운명. 농담 하나 준비하세요',
+  '오늘 인사 한 번이 다음 콜로 돌아옵니다',
+  '간식 테이블에 초코파이가 남아 있을 확률 87%',
+  '선크림 안 바르면 내일 거울 보고 놀랍니다',
+  '핫팩 하나가 오늘의 MVP. 주머니에 넣어두세요',
+  '오늘은 우비를 챙긴 사람이 승자입니다',
+  '물 많이 마시세요. 오늘 현장은 생각보다 건조합니다',
+  '밀린 페이 문자는 오늘 보내면 답장이 빨라요',
+  '오늘 찍은 영수증 사진이 한 달 뒤에 돈이 됩니다',
+  '오버차지 시간은 오늘 바로 적어두세요. 내일이면 까먹어요',
+  '정산 서류는 랩 하자마자 보내는 게 이득',
+  '입금 알림 소리가 들릴 기운. 진동 모드를 풀어두세요',
+  '오늘 한 네고는 반드시 문자로 남기세요',
+  '통장보다 스케줄표를 보세요. 좋은 콜이 들어옵니다',
+  '세금계산서는 오늘 끊어야 이번 달 안에 들어와요',
 ];
 const F_SUB = { 2: '오늘은 조용히 버티는 날. 무사히 랩하면 이긴 거예요', 3: '평범하게 흘러가는 날. 원테이크 한 번쯤은 나와요', 4: '술술 풀리는 날. 칭찬 한 번은 들어요', 5: '대박 기운. 오버 없이 해 떨어지기 전에 랩할지도' };
 function fortune() {
@@ -1123,14 +1180,17 @@ function exEditorHTML(list, scope) {
   return `${list.map((e, i) => `<div class="ex">
       <div class="ex-m"><div class="ex-t">${esc(e.cat)} <span class="num ex-a">${won(e.amount)}원</span></div><div class="ex-s">${esc(e.memo || '')}</div></div>
       <button type="button" class="tick claim ${e.claim ? 'on' : ''}" data-act="exTog" data-k="claim" data-i="${i}" data-scope="${scope}">${e.claim ? '청구' : '본인 부담'}</button>
-      <button type="button" class="tick ${e.receipt ? 'on' : ''}" data-act="exTog" data-k="receipt" data-i="${i}" data-scope="${scope}">${e.receipt ? '영수증 ✓' : '영수증'}</button>
+      ${e.photo ? `<button type="button" class="ex-ph" data-act="phView" data-i="${i}" data-scope="${scope}" aria-label="영수증 사진 보기"><img data-pid="${e.photo}" alt=""></button>`
+        : `<button type="button" class="ex-cam" data-act="phPick" data-i="${i}" data-scope="${scope}" aria-label="영수증 사진 찍기">${CAM_SVG}</button>`}
       <button type="button" class="x-btn" data-act="exDel" data-i="${i}" data-scope="${scope}" aria-label="삭제">${I.x}</button>
     </div>`).join('')}
     <div class="ex-edit">
       <select class="inp" id="ex-cat-${scope}" aria-label="항목">${EXCAT.map(c => `<option>${c}</option>`).join('')}</select>
       <input class="inp r num" id="ex-amt-${scope}" inputmode="numeric" data-money placeholder="금액" aria-label="금액">
       <input class="inp full" id="ex-memo-${scope}" placeholder="메모 (선택)" aria-label="메모">
-      <button type="button" class="pb full" data-act="exAdd" data-scope="${scope}">+ 사비 추가</button>
+      <div class="pend" id="pend-${scope}">${pendingPhoto[scope] ? `<img data-pid="${pendingPhoto[scope]}" alt=""><span>영수증 사진 첨부됨</span>` : ''}</div>
+      <button type="button" class="pb" data-act="phPickNew" data-scope="${scope}">${CAM_SVG.replace('<svg', '<svg width="18" height="18"')} 영수증 찍기</button>
+      <button type="button" class="pb primary" data-act="exAdd" data-scope="${scope}"><span class="spec"></span>+ 사비 추가</button>
     </div>`;
 }
 function previewHTML(j) {
@@ -1155,7 +1215,7 @@ function openForm(j, date) {
   draft = j ? draftFrom(j) : newDraft(date); step = 0;
   openSheet(formHTML()); refreshPreview(); bindRollers();
 }
-function rerenderForm() { const sc = $('.sheet').scrollTop; $('#sheetBody').innerHTML = formHTML(); refreshPreview(); bindRollers(); $('.sheet').scrollTop = sc; }
+function rerenderForm() { const sc = $('.sheet').scrollTop; $('#sheetBody').innerHTML = formHTML(); refreshPreview(); bindRollers(); $('.sheet').scrollTop = sc; loadThumbs($('#sheetBody')); }
 function setDraft(f, v) {
   draft[f] = v;
   if (f === 'dayPay' && draft.otAuto) { draft.otRate = defaultOt(v); const o = $('#f-ot'); if (o) o.value = won(draft.otRate); }
@@ -1225,8 +1285,8 @@ function detailHTML(j) {
   <div id="copyFallback"></div>`;
 }
 function curJob() { return S.jobs.find(x => x.id === detailId); }
-function openDetail(id) { const j = S.jobs.find(x => x.id === id); if (!j) return; detailId = id; openSheet(detailHTML(j)); }
-function refreshDetail() { const j = S.jobs.find(x => x.id === detailId); if (j) { const sc = $('.sheet').scrollTop; $('#sheetBody').innerHTML = detailHTML(j); $('.sheet').scrollTop = sc; } }
+function openDetail(id) { const j = S.jobs.find(x => x.id === id); if (!j) return; detailId = id; openSheet(detailHTML(j)); loadThumbs($('#sheetBody')); }
+function refreshDetail() { const j = S.jobs.find(x => x.id === detailId); if (j) { const sc = $('.sheet').scrollTop; $('#sheetBody').innerHTML = detailHTML(j); $('.sheet').scrollTop = sc; loadThumbs($('#sheetBody')); } }
 
 function reqText(j) {
   const c = calc(j), d = parse(j.date);
@@ -1249,6 +1309,70 @@ function installHint() {
   try { if (localStorage.getItem('calltime.installHint') === 'off') return ''; } catch (e) {}
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   return `<div class="banner" style="margin-top:8px;background:var(--surface-2);color:var(--ink-2)"><span><b style="color:var(--ink)">앱처럼 쓰기</b><br>${ios ? '사파리 아래 공유 버튼 → <b>홈 화면에 추가</b>' : '브라우저 메뉴(⋮) → <b>홈 화면에 추가</b>'}</span><button class="pb sm" data-act="hideInstall">닫기</button></div>`;
+}
+
+/* ───────── 영수증 사진: IndexedDB(기기 안)에만 저장 ───────── */
+const PH = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => { try { const r = indexedDB.open('pumsak', 1); r.onupgradeneeded = () => r.result.createObjectStore('photos'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }));
+  const run = (mode, fn) => open().then(db => new Promise((res, rej) => { const t = db.transaction('photos', mode), rq = fn(t.objectStore('photos')); t.oncomplete = () => res(rq && rq.result); t.onerror = () => rej(t.error); }));
+  const cache = new Map();
+  return {
+    put: (k, v) => { cache.set(k, v); return run('readwrite', st => st.put(v, k)); },
+    get: k => cache.has(k) ? Promise.resolve(cache.get(k)) : run('readonly', st => st.get(k)).then(v => { if (v) cache.set(k, v); return v; }),
+    del: k => { cache.delete(k); return run('readwrite', st => st.delete(k)).catch(() => {}); },
+    keys: () => run('readonly', st => st.getAllKeys()),
+  };
+})();
+const CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>';
+function compressPhoto(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const max = 1600, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      res(c.toDataURL('image/jpeg', .72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('decode')); };
+    img.src = url;
+  });
+}
+let phTarget = null, pendingPhoto = {};
+function pickPhoto(target) {
+  phTarget = target;
+  const inp = $('#phIn'); inp.value = ''; inp.click();
+}
+async function onPhoto(file) {
+  if (!file || !phTarget) return;
+  try {
+    const data = await compressPhoto(file), id = 'ph_' + uid();
+    await PH.put(id, data); buzz('MEDIUM');
+    const t = phTarget; phTarget = null;
+    if (t.pending) { pendingPhoto[t.scope] = id; const box = $('#pend-' + t.scope); if (box) box.innerHTML = `<img src="${data}" alt=""><span>영수증 사진 첨부됨 · 금액 넣고 추가하세요</span>`; return; }
+    const e = exTarget(t.scope)[t.i]; if (!e) return;
+    if (e.photo) PH.del(e.photo);
+    e.photo = id; e.receipt = true; exRefresh(t.scope); toast('영수증 사진을 저장했어요');
+  } catch (x) { toast('사진을 불러오지 못했어요'); }
+}
+function loadThumbs(root = document) {
+  root.querySelectorAll('img[data-pid]:not([src])').forEach(img => PH.get(img.dataset.pid).then(v => { if (v) img.src = v; else img.closest('.ex-ph')?.remove(); }).catch(() => {}));
+}
+function openViewer(scope, i) {
+  const e = exTarget(scope)[i]; if (!e || !e.photo) return;
+  const v = document.createElement('div'); v.className = 'viewer'; v.id = 'viewer';
+  v.innerHTML = `<div class="v-cap">${esc(e.cat)} · ${won(e.amount)}원${e.memo ? ' · ' + esc(e.memo) : ''}</div><img data-pid="${e.photo}" alt="영수증 사진">
+    <div class="v-b"><button class="pb" data-act="phRetake" data-scope="${scope}" data-i="${i}">다시 찍기</button><button class="pb danger" data-act="phDel" data-scope="${scope}" data-i="${i}">사진 삭제</button><button class="pb primary" data-act="phClose"><span class="spec"></span>닫기</button></div>`;
+  v.addEventListener('click', ev => { if (ev.target === v) v.remove(); });
+  document.body.appendChild(v); loadThumbs(v);
+}
+async function collectPhotos() {
+  const out = {};
+  for (const j of S.jobs) for (const e of (j.expenses || [])) if (e.photo) { try { const d = await PH.get(e.photo); if (d) out[e.photo] = d; } catch (x) {} }
+  return out;
+}
+async function cleanupPhotos() {
+  try { const used = new Set(S.jobs.flatMap(j => (j.expenses || []).map(e => e.photo).filter(Boolean))); const ks = await PH.keys(); (ks || []).forEach(k => { if (!used.has(k)) PH.del(k); }); } catch (x) {}
 }
 
 /* ───────── 준비물 체크리스트 ───────── */
@@ -1371,12 +1495,12 @@ const A = {
     if (NATIVE && fs && sh) {
       try {
         const name = `품삯_백업_${TODAY}.json`;
-        const w = await fs.writeFile({ path: name, data: JSON.stringify(snapshot()), directory: 'CACHE', encoding: 'utf8' });
+        const w = await fs.writeFile({ path: name, data: JSON.stringify({ ...snapshot(), photos: await collectPhotos() }), directory: 'CACHE', encoding: 'utf8' });
         await sh.share({ title: '품삯 백업', files: [w.uri] });
       } catch (e) { if (!/cancel/i.test(String(e && e.message))) toast('백업 파일을 만들지 못했어요'); }
       return;
     }
-    const blob = new Blob([JSON.stringify(snapshot(), null, 1)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ ...snapshot(), photos: await collectPhotos() })], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `품삯_백업_${TODAY}.json`;
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('백업 파일을 저장했어요');
   },
@@ -1416,11 +1540,18 @@ const A = {
   exAdd: (t) => {
     const sc = t.dataset.scope, amt = num($('#ex-amt-' + sc).value);
     if (!amt) { toast('금액을 입력해 주세요'); $('#ex-amt-' + sc).focus(); return; }
-    const e = { id: uid(), cat: $('#ex-cat-' + sc).value, amount: amt, memo: $('#ex-memo-' + sc).value.trim(), claim: true, receipt: false };
+    const ph = pendingPhoto[sc] || null; delete pendingPhoto[sc];
+    const e = { id: uid(), cat: $('#ex-cat-' + sc).value, amount: amt, memo: $('#ex-memo-' + sc).value.trim(), claim: true, receipt: !!ph, photo: ph };
     exTarget(sc).push(e); exRefresh(sc);
   },
   exTog: (t) => { const sc = t.dataset.scope, e = exTarget(sc)[+t.dataset.i]; e[t.dataset.k] = !e[t.dataset.k]; exRefresh(sc); },
-  exDel: (t) => { const sc = t.dataset.scope; exTarget(sc).splice(+t.dataset.i, 1); exRefresh(sc); },
+  exDel: (t) => { const sc = t.dataset.scope, [e] = exTarget(sc).splice(+t.dataset.i, 1); if (e && e.photo) PH.del(e.photo); exRefresh(sc); },
+  phPick: (t) => pickPhoto({ scope: t.dataset.scope, i: +t.dataset.i }),
+  phPickNew: (t) => pickPhoto({ scope: t.dataset.scope, pending: true }),
+  phView: (t) => openViewer(t.dataset.scope, +t.dataset.i),
+  phClose: () => { const v = $('#viewer'); v && v.remove(); },
+  phRetake: (t) => { $('#viewer')?.remove(); pickPhoto({ scope: t.dataset.scope, i: +t.dataset.i }); },
+  phDel: (t) => { const e = exTarget(t.dataset.scope)[+t.dataset.i]; if (e && e.photo) { PH.del(e.photo); e.photo = null; } $('#viewer')?.remove(); exRefresh(t.dataset.scope); toast('사진을 지웠어요'); },
   markPaid: (t) => { const j = S.jobs.find(x => x.id === t.dataset.id); j.paidAt = TODAY; save(); buzz('MEDIUM'); closeSheetIfOpen(); render(); toast(`입금 확인! ${won(calc(j).net)}원`); },
   unpay: (t) => { const j = S.jobs.find(x => x.id === t.dataset.id); j.paidAt = null; save(); refreshDetail(); render(); },
   delJob: (t) => {
@@ -1447,6 +1578,7 @@ function exTarget(sc) { if (sc === 'draft') return draft.expenses; const j = S.j
 function exRefresh(sc) {
   if (sc === 'draft') { $('#exList').innerHTML = exEditorHTML(draft.expenses, 'draft'); refreshPreview(); }
   else { save(); refreshDetail(); render(); }
+  loadThumbs($('#sheetBody'));
 }
 
 document.addEventListener('click', e => {
@@ -1469,9 +1601,10 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('keydown', e => { if (e.target.id === 'ckNew' && e.key === 'Enter' && !e.isComposing) { e.preventDefault(); A.ckAdd(); } });
 document.addEventListener('change', e => {
+  if (e.target.id === 'phIn') { onPhoto(e.target.files[0]); return; }
   if (e.target.id !== 'importFile' || !e.target.files[0]) return;
   const fr = new FileReader();
-  fr.onload = () => { try { const d = JSON.parse(fr.result); if (!hydrate(d)) throw 0; save(); closeSheet(); render(); toast(`불러왔어요 · 촬영 ${S.jobs.length}건`); } catch (x) { toast('품삯 백업 파일이 아니에요'); } };
+  fr.onload = () => { try { const d = JSON.parse(fr.result); if (!hydrate(d)) throw 0; if (d.photos) Object.entries(d.photos).forEach(([k, v]) => PH.put(k, v).catch(() => {})); save(); closeSheet(); render(); toast(`불러왔어요 · 촬영 ${S.jobs.length}건`); } catch (x) { toast('품삯 백업 파일이 아니에요'); } };
   fr.readAsText(e.target.files[0]);
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheetRoot').hidden) closeSheet(); });
@@ -1513,11 +1646,12 @@ window.addEventListener('pointermove', e => {
 const local = loadLocal();
 if (!hydrate(local)) { S.jobs = sampleJobs(); S.sample = true; }
 render();
+setTimeout(cleanupPhotos, 3000);
 { const n = alerts().length; let seen = false; try { seen = localStorage.getItem('calltime.bellSeen') === TODAY; } catch (e) {} if (n && !seen) setTimeout(() => toast(`🔔 정산 확인이 필요한 촬영 ${n}건`), 700); }
 initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232000').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232006').catch(() => {}));</script>
 </body>
 </html>
