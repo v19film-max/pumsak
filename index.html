@@ -806,6 +806,7 @@ function viewHome() {
   let greet;
   if (t.overdueN) greet = `정산이 늦어지는 촬영이<br><em>${t.overdueN}건</em> 있어요`;
   else if (t.pendingN) greet = `정산 기다리는 촬영<br>${t.pendingN}건, 곧 들어와요`;
+  else if (!S.jobs.length) greet = '첫 촬영을<br>기록해 볼까요?';
   else greet = '밀린 페이 없음.<br>깔끔한 통장이에요';
   const d = new Date();
   return `
@@ -814,10 +815,12 @@ function viewHome() {
   ${S.sample ? `<div class="banner"><span><b>예시 데이터</b>예요.<br>촬영을 추가하면 사라져요.</span><button class="pb sm" data-act="clearSample">지우기</button></div>` : ''}
   ${installHint()}
   ${walletHTML(t)}
-  <div class="tiles">
+  ${!S.jobs.length ? `<div class="card" style="margin-top:14px;padding:20px;text-align:center"><div style="font-weight:700;font-size:16px">아직 기록한 촬영이 없어요</div><div class="note" style="margin:4px 0 14px">촬영 일정만 먼저 넣어도 돼요. 페이는 나중에 채워도 괜찮아요.</div><button class="pb primary block" data-act="newJob"><span class="spec"></span>+ 첫 촬영 추가</button></div>` : ''}
+  ${S.jobs.length ? `  <div class="tiles">
     <div class="card tile"><div class="k">이번 달 입금</div><div class="v num">${won(t.monthIn)}원</div><div class="s">${t.monthInN}건 들어왔어요</div></div>
     <div class="card tile"><div class="k">돌려받을 사비</div><div class="v num">${won(t.claim)}원</div><div class="s">정산 때 같이 청구</div></div>
   </div>
+` : ''}
   ${overdue.length ? `<section class="sec"><div class="sec-h"><h2>정산 확인이 필요해요</h2><button class="more" data-act="bell">알림 전체</button></div>
     ${overdue.map(j => { const c = calc(j); return `<div class="alert">
       <div class="a-h">${I.warn} 촬영 후 ${elapsed(j)}일째 미정산 · 기준 ${alertOf(j)}일</div>
@@ -826,10 +829,11 @@ function viewHome() {
       <div class="a-b"><button class="pb sm" data-act="copyReq" data-id="${j.id}">정산 요청 문자 복사</button><button class="pb sm good" data-act="markPaid" data-id="${j.id}"><span class="spec"></span>입금 확인</button></div>
     </div>`; }).join('')}</section>` : ''}
   ${needWrap.length ? `<section class="sec"><div class="sec-h"><h2>랩타임을 확정해 주세요</h2></div><div class="card" style="padding:4px 0">${needWrap.map(j => `<div class="wrapfix"><span class="tx">${esc(j.title)}<small>${fmtDs(j.date)} · 콜 ${j.call} · 예상 엔드 ${j.wrap} — 실제로 몇 시에 끝났나요?</small></span><input class="inp num" type="time" id="fw-${j.id}" value="${j.wrap}" aria-label="실제 랩타임"><button class="pb sm primary" data-act="fixWrap" data-id="${j.id}"><span class="spec"></span>확정</button></div>`).join('')}</div></section>` : ''}
-  <section class="sec"><div class="sec-h"><h2>다가오는 촬영</h2><button class="more" data-tab-go="cal">일정 보기</button></div>
+  ${S.jobs.length ? `  <section class="sec"><div class="sec-h"><h2>다가오는 촬영</h2><button class="more" data-tab-go="cal">일정 보기</button></div>
     ${nextJob ? nextHTML(nextJob) : ''}
     ${rest.length ? `<div class="card" style="padding:6px;margin-top:10px">${rest.map(jobRow).join('')}</div>` : nextJob ? '' : '<div class="card"><div class="empty">잡힌 촬영이 없어요. 셔터 버튼으로 추가해 보세요.</div></div>'}
   </section>
+` : ''}
   <section class="sec"><button class="card teaser" data-tab-go="luck">
     <span class="dial">${f.score}<small style="font-size:9px">/5</small></span>
     <span><span class="t1" style="display:block">오늘의 촬영운</span><span class="t2" style="display:block">${esc(f.teaser)}</span></span>
@@ -1597,11 +1601,11 @@ function onboardHTML() {
   <div class="fld"><span class="lbl">보통 데이페이</span><div class="qchips" style="margin-top:0">${[250000, 300000, 350000, 400000, 450000, 500000, 600000].map(v => `<button type="button" class="chip ${ob.pay === v ? 'on' : ''}" data-act="obPay" data-v="${v}">${v / 10000}만</button>`).join('')}</div></div>
   <div class="fld"><span class="lbl">오버차지는 보통</span>${seg('ob:ot', [['pct', '데이페이의 10%'], ['fixed', '시간당 5만']], ob.ot)}</div>
   <div class="note" style="margin:-4px 2px 4px">🔒 PUMSAK은 서버가 없어요. 입력한 기록과 사진은 이 폰에만 저장되고 어디에도 전송되지 않아요.</div>
-  <div class="sh-actions"><button class="pb" data-act="obDone" data-v="sample">예시 보며 둘러보기</button><button class="pb primary" data-act="obDone" data-v="fresh"><span class="spec"></span>바로 시작하기</button></div>`;
+  <div class="sh-actions"><button class="pb primary block" data-act="obDone" data-v="fresh"><span class="spec"></span>시작하기</button></div>`;
 }
 function maybeOnboard() {
   let done = false; try { done = !!localStorage.getItem('calltime.onboarded'); } catch (e) {}
-  if (done || !S.sample || window.claude) return;
+  if (done || !FRESH || window.claude) return;
   ob = { name: '', role: '촬영팀', pay: 400000, ot: 'pct' };
   setTimeout(() => openSheet(onboardHTML()), 500);
 }
@@ -1663,7 +1667,7 @@ const A = {
     Object.assign(S.settings, { callName: ob.name, role: ob.role, dayPay: ob.pay, otMode: ob.ot === 'fixed' ? 'fixed' : 'pct', otPct: 10, otFixed: 50000 });
     if (t.dataset.v === 'fresh') { S.jobs = []; S.sample = false; }
     try { localStorage.setItem('calltime.onboarded', TODAY); } catch (e) {}
-    save(); closeSheet(); render(); toast(t.dataset.v === 'fresh' ? '셔터 버튼으로 첫 촬영을 추가해 보세요' : '예시로 둘러보고, 설정에서 지우면 돼요');
+    save(); closeSheet(); render(); toast('셔터 버튼으로 첫 촬영을 추가해 보세요');
   },
   feedback: () => { if (!$('#sheetRoot').hidden) { $('#sheetBody').innerHTML = feedbackHTML(); $('.sheet').scrollTop = 0; } else openSheet(feedbackHTML()); },
   fbCopy: (t) => {
@@ -1837,7 +1841,8 @@ window.addEventListener('pointermove', e => {
 
 /* ───────── boot ───────── */
 const local = loadLocal();
-if (!hydrate(local)) { S.jobs = sampleJobs(); S.sample = true; }
+const FRESH = !hydrate(local);
+if (FRESH) { S.jobs = []; S.sample = false; }
 if (!S.settings.firstOpen) { S.settings.firstOpen = TODAY; try { localStorage.setItem(LS, JSON.stringify(snapshot())); } catch (e) {} }
 render();
 setTimeout(cleanupPhotos, 3000);
@@ -1847,6 +1852,6 @@ initCloud();
 })();
 </script>
 
-<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232103').catch(() => {}));</script>
+<script>if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=202609232104').catch(() => {}));</script>
 </body>
 </html>
